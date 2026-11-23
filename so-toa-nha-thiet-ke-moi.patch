@@ -1,0 +1,578 @@
+From c1928680ff021f4c4d8ace3d9400b6238e107f39 Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Mon, 23 Nov 2026 06:50:44 +0000
+Subject: [PATCH] =?UTF-8?q?V=E1=BA=BD=20l=E1=BA=A1i=20t=C3=B2a=20nh=C3=A0,?=
+ =?UTF-8?q?=20chuy=E1=BB=83n=20bi=E1=BB=83u=20=C4=91=E1=BB=93=20sang=20d3,?=
+ =?UTF-8?q?=20th=C3=AAm=20bi=E1=BB=83u=20=C4=91=E1=BB=93=20s=E1=BB=91=20?=
+ =?UTF-8?q?=C4=91i=E1=BB=87n=20t=E1=BB=ABng=20c=C4=83n?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+- Tòa nhà: mặt tiền có chiều sâu, cửa sổ có rèm và ban công, sân thượng có chậu cây,
+  mái có bồn nước inox, ăng-ten, pin mặt trời; sảnh có mái hiên và biển tên;
+  vỉa hè, cây, đèn đường, xe máy, nền thành phố về đêm
+- Thêm biểu tượng đồng hồ / dấu chấm than để không chỉ dựa vào màu
+- Biểu đồ thu chi 12 tháng (d3): thêm đường Còn lại, tooltip, bấm cột để đổi tháng
+- Biểu đồ tròn chi theo nhóm (d3): rê chuột làm nổi nhóm
+- Mới: biểu đồ số điện từng căn, tô đỏ căn dùng cao bất thường
+- Bảng màu nhóm chi đã kiểm tra cho người mù màu
+- Sửa khung trống bị lộ khi bảng nổi đóng; icon app mới
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01MewX9scxr1BUWto9br3wdt
+---
+ icon.svg   |  30 +++--
+ index.html | 371 ++++++++++++++++++++++++++++++++++++++++++-----------
+ 2 files changed, 316 insertions(+), 85 deletions(-)
+
+diff --git a/icon.svg b/icon.svg
+index b7d3200..bcc86da 100644
+--- a/icon.svg
++++ b/icon.svg
+@@ -1,14 +1,24 @@
+ <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+-  <defs><linearGradient id="s" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#151325"/><stop offset="1" stop-color="#2D2546"/></linearGradient></defs>
++  <defs>
++    <linearGradient id="s" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0E0C1E"/><stop offset=".6" stop-color="#2C2350"/><stop offset="1" stop-color="#5E3E5E"/></linearGradient>
++    <linearGradient id="w" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFF0C2"/><stop offset=".5" stop-color="#FFD27A"/><stop offset="1" stop-color="#F5A623"/></linearGradient>
++    <linearGradient id="f" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#4B4470"/><stop offset="1" stop-color="#373154"/></linearGradient>
++    <linearGradient id="t" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#F2F1FA"/><stop offset=".5" stop-color="#C9C7DA"/><stop offset="1" stop-color="#8F8CA8"/></linearGradient>
++  </defs>
+   <rect width="512" height="512" rx="112" fill="url(#s)"/>
+-  <rect x="166" y="96" width="180" height="330" rx="14" fill="#3B355A"/>
+-  <g fill="#FFC24B">
+-    <rect x="192" y="124" width="56" height="44" rx="6"/><rect x="264" y="124" width="56" height="44" rx="6"/>
+-    <rect x="192" y="184" width="56" height="44" rx="6"/>
+-    <rect x="192" y="244" width="56" height="44" rx="6"/><rect x="264" y="244" width="56" height="44" rx="6"/>
+-    <rect x="264" y="304" width="56" height="44" rx="6"/>
+-    <rect x="232" y="364" width="48" height="62" rx="4"/>
++  <circle cx="392" cy="112" r="30" fill="#F7E2A8"/>
++  <rect x="196" y="98" width="64" height="26" rx="13" fill="url(#t)"/>
++  <path d="M206 124v14M250 124v14" stroke="#8E86BA" stroke-width="5"/>
++  <rect x="168" y="138" width="176" height="300" fill="url(#f)"/>
++  <path d="M344 138l20 10v290h-20z" fill="#221E38"/>
++  <g fill="url(#w)">
++    <rect x="186" y="156" width="140" height="56" rx="5"/>
++    <rect x="186" y="230" width="62" height="56" rx="5"/><rect x="264" y="230" width="62" height="56" rx="5"/>
++    <rect x="186" y="304" width="62" height="56" rx="5"/>
+   </g>
+-  <g fill="#1E1A33"><rect x="264" y="184" width="56" height="44" rx="6"/><rect x="192" y="304" width="56" height="44" rx="6"/></g>
+-  <rect x="112" y="426" width="288" height="10" rx="5" fill="#4A4268"/>
++  <rect x="264" y="304" width="62" height="56" rx="5" fill="#1B1830"/>
++  <g stroke="#B9B2DC" stroke-width="4"><path d="M186 206h140M186 280h62M264 280h62M186 354h62M264 354h62"/></g>
++  <rect x="228" y="384" width="56" height="54" rx="3" fill="url(#w)"/><path d="M256 384v54" stroke="#2A2546" stroke-width="4"/>
++  <rect x="214" y="374" width="84" height="8" rx="3" fill="#C9C2EA"/>
++  <rect x="96" y="438" width="320" height="12" rx="6" fill="#6A6292"/>
+ </svg>
+diff --git a/index.html b/index.html
+index d7acf10..6be8b72 100644
+--- a/index.html
++++ b/index.html
+@@ -15,7 +15,7 @@
+ <link rel="preconnect" href="https://fonts.googleapis.com">
+ <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+ <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Be+Vietnam+Pro:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap&subset=vietnamese" rel="stylesheet">
+-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
++<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+ <style>
+ :root{
+   --paper:#EFF0EC; --surface:#FFFFFF; --surface-2:#F6F7F3; --ink:#191B22; --ink-2:#4F5462; --ink-3:#8B909B;
+@@ -24,7 +24,7 @@
+   --glow:#FFC24B; --glow-2:#F5A623; --glow-soft:rgba(255,194,75,.16);
+   --elec:#E09B00; --water:#1F74D6; --lavie:#0FA592;
+   --ok:#2A9D68; --ok-soft:rgba(42,157,104,.12); --warn:#D98200; --warn-soft:rgba(217,130,0,.13); --bad:#D4433A; --bad-soft:rgba(212,67,58,.11);
+-  --c-repair:#C8643B; --c-salary:#5B4BDB; --c-outside:#2C8FA6; --c-other:#9A8F7A;
++  --c-repair:#C8643B; --c-salary:#5B4BDB; --c-outside:#1592A8; --c-other:#B08A2E;
+   --radius:20px; --radius-s:12px;
+   --shadow:0 1px 2px rgba(20,20,40,.04),0 10px 30px -16px rgba(20,20,40,.18);
+   --f-display:'Bricolage Grotesque',ui-sans-serif,system-ui,sans-serif;
+@@ -35,13 +35,13 @@
+ @media (prefers-color-scheme:dark){ :root:not([data-theme="light"]){
+   --paper:#111118; --surface:#1A1A24; --surface-2:#21212D; --ink:#ECEDF2; --ink-2:#B3B6C2; --ink-3:#7D8090;
+   --line:#2C2C3A; --line-2:#252531; --night:#17152A; --night-2:#24213A; --night-3:#35314F;
+-  --ok-soft:rgba(42,157,104,.2); --warn-soft:rgba(217,130,0,.2); --bad-soft:rgba(212,67,58,.2);
++  --ok-soft:rgba(42,157,104,.2); --warn-soft:rgba(217,130,0,.2); --bad-soft:rgba(212,67,58,.2); --c-salary:#7D6EF2;
+   --shadow:0 1px 0 rgba(255,255,255,.03) inset,0 12px 30px -18px rgba(0,0,0,.6); color-scheme:dark;
+ }}
+ :root[data-theme="dark"]{
+   --paper:#111118; --surface:#1A1A24; --surface-2:#21212D; --ink:#ECEDF2; --ink-2:#B3B6C2; --ink-3:#7D8090;
+   --line:#2C2C3A; --line-2:#252531; --night:#17152A; --night-2:#24213A; --night-3:#35314F;
+-  --ok-soft:rgba(42,157,104,.2); --warn-soft:rgba(217,130,0,.2); --bad-soft:rgba(212,67,58,.2);
++  --ok-soft:rgba(42,157,104,.2); --warn-soft:rgba(217,130,0,.2); --bad-soft:rgba(212,67,58,.2); --c-salary:#7D6EF2;
+   --shadow:0 1px 0 rgba(255,255,255,.03) inset,0 12px 30px -18px rgba(0,0,0,.6); color-scheme:dark;
+ }
+ *{box-sizing:border-box}
+@@ -130,49 +130,114 @@ h1,h2,h3{font-family:var(--f-display);margin:0;letter-spacing:-.02em}
+ .sw{width:8px;height:8px;border-radius:3px;display:inline-block}
+ 
+ /* ---------- Tower (signature) ---------- */
+-.tower{position:relative;background:linear-gradient(180deg,#151325 0%,#221E3A 55%,#2D2546 100%);border-radius:24px;padding:20px 18px 0;color:var(--night-ink);overflow:hidden;isolation:isolate}
+-.tower::before{content:"";position:absolute;inset:0;z-index:-1;background:
+-  radial-gradient(1.2px 1.2px at 12% 14%,#fff8 50%,transparent),radial-gradient(1px 1px at 28% 30%,#fff6 50%,transparent),
+-  radial-gradient(1.4px 1.4px at 78% 10%,#fff9 50%,transparent),radial-gradient(1px 1px at 90% 34%,#fff5 50%,transparent),
+-  radial-gradient(1px 1px at 60% 22%,#fff6 50%,transparent),radial-gradient(1.2px 1.2px at 40% 8%,#fff7 50%,transparent),
+-  radial-gradient(60% 40% at 85% 6%,rgba(255,194,75,.10),transparent)}
+-.tower-head{display:flex;align-items:flex-start;gap:10px;margin-bottom:14px}
++.tower{position:relative;border-radius:24px;color:var(--night-ink);overflow:hidden;isolation:isolate;
++  background:linear-gradient(180deg,#0E0C1E 0%,#1A1633 38%,#2C2350 70%,#4A3561 88%,#5E3E5E 100%)}
++.tower::before{content:"";position:absolute;inset:0;z-index:-2;pointer-events:none;background:
++  radial-gradient(1.2px 1.2px at 8% 12%,#fff 50%,transparent),radial-gradient(1px 1px at 22% 26%,#fffb 50%,transparent),
++  radial-gradient(1.4px 1.4px at 74% 9%,#fff 50%,transparent),radial-gradient(1px 1px at 92% 30%,#fff9 50%,transparent),
++  radial-gradient(1px 1px at 58% 19%,#fffa 50%,transparent),radial-gradient(1.2px 1.2px at 38% 6%,#fffc 50%,transparent),
++  radial-gradient(1px 1px at 14% 44%,#fff8 50%,transparent),radial-gradient(1px 1px at 86% 48%,#fff8 50%,transparent),
++  radial-gradient(1.3px 1.3px at 96% 16%,#fffb 50%,transparent),radial-gradient(1px 1px at 4% 30%,#fff9 50%,transparent),
++  radial-gradient(70% 45% at 50% 100%,rgba(255,150,90,.22),transparent 70%)}
++.tower-head{display:flex;align-items:flex-start;gap:10px;padding:20px 20px 0;position:relative;z-index:2}
+ .tower-head .t1{font-family:var(--f-display);font-size:22px;font-weight:700;letter-spacing:-.02em;line-height:1.1}
+-.tower-head .t2{font-size:12.5px;color:var(--night-ink-2);margin-top:3px}
+-.tower-head .moon{margin-left:auto;width:30px;height:30px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#FFF4D6,#F3D58A);box-shadow:0 0 30px rgba(255,220,140,.35);flex:none}
+-.bld{position:relative;margin:0 auto;max-width:420px}
+-.antenna{width:2px;height:22px;background:var(--night-3);margin:0 auto}
+-.antenna::before{content:"";display:block;width:6px;height:6px;border-radius:50%;background:#FF5A4E;margin:-3px 0 0 -2px;box-shadow:0 0 10px #FF5A4E;animation:blink 2.4s infinite}
+-@keyframes blink{50%{opacity:.25}}
+-.floor{display:flex;align-items:stretch;gap:8px;padding:5px 0;position:relative}
+-.floor .fl{width:22px;flex:none;font:600 10.5px/1 var(--f-mono);color:var(--night-ink-2);display:flex;align-items:center;opacity:.8}
+-.floor .units{flex:1;display:grid;grid-template-columns:repeat(var(--n),1fr);gap:6px;padding:6px;background:#3B355A;border-radius:6px;box-shadow:inset 0 -2px 0 rgba(0,0,0,.25)}
+-.floor.f8 .units{margin:0 24%}
+-.floor.f7 .units{margin:0 12%}
+-.floor.f8 .units{border-radius:12px 12px 6px 6px}
+-.unit{position:relative;min-height:50px;border-radius:5px;padding:7px 9px;text-align:left;display:flex;flex-direction:column;justify-content:center;background:#1E1A33;color:var(--night-ink-2);overflow:hidden;transition:transform .15s,box-shadow .2s}
+-.unit::after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(90deg,transparent calc(50% - 1px),rgba(0,0,0,.16) calc(50% - 1px),rgba(0,0,0,.16) calc(50% + 1px),transparent calc(50% + 1px)),linear-gradient(180deg,rgba(255,255,255,.10),transparent 40%)}
+-.unit:hover{transform:translateY(-1px)}
++.tower-head .t2{font-size:12.5px;color:var(--night-ink-2);margin-top:4px}
++.tower-head .t2 .late{color:#FF9C94;font-weight:600}
++.moon{margin-left:auto;flex:none;width:34px;height:34px;border-radius:50%;position:relative;
++  background:radial-gradient(circle at 34% 32%,#FFF8E6 0 30%,#F7E2A8 70%,#E9C97C);
++  box-shadow:0 0 0 8px rgba(255,236,180,.05),0 0 0 18px rgba(255,236,180,.03),0 0 40px 6px rgba(255,220,140,.35)}
++.moon::before,.moon::after{content:"";position:absolute;border-radius:50%;background:rgba(200,160,80,.28)}
++.moon::before{width:7px;height:7px;top:9px;left:17px}
++.moon::after{width:5px;height:5px;top:20px;left:10px}
++.scene{position:relative;margin-top:-6px}
++.skyline{position:absolute;left:0;right:0;bottom:46px;width:100%;height:58%;z-index:-1;pointer-events:none}
++.cloud{position:absolute;height:10px;border-radius:99px;background:rgba(180,170,220,.10);filter:blur(1px);z-index:-1}
++.cloud::before{content:"";position:absolute;left:22%;top:-6px;width:40%;height:14px;border-radius:99px;background:inherit}
++.bld{position:relative;margin:0 auto;width:calc(100% - 92px);max-width:330px;padding-top:6px}
++.roof{position:relative;height:46px;margin:0 22%}
++.roof svg{position:absolute;left:0;right:0;bottom:0;width:100%;height:100%;overflow:visible}
++.beacon{animation:blink 2.4s infinite}
++@keyframes blink{50%{opacity:.2}}
++/* floors */
++.floor{position:relative}
++.floor .units{position:relative;display:grid;grid-template-columns:repeat(var(--n),1fr);gap:10px;padding:9px 10px 7px;
++  background:linear-gradient(180deg,#4B4470,#3E3860 70%,#373154);
++  box-shadow:inset 0 3px 0 #6A6292,inset 0 -1px 0 rgba(0,0,0,.35)}
++/* side wall (depth) */
++.floor .units::after{content:"";position:absolute;top:0;bottom:0;right:-12px;width:12px;background:linear-gradient(180deg,#2A2544,#221E38);
++  clip-path:polygon(0 0,100% 7px,100% 100%,0 100%)}
++.floor.f8 .units{margin:0 22%;border-radius:6px 6px 0 0}
++.floor.f7 .units{margin:0 11%}
++/* terraces on setbacks */
++.floor.f7::before,.floor.f6::before{content:"";position:absolute;top:-9px;height:9px;z-index:0;
++  background:repeating-linear-gradient(90deg,#8A82B4 0 1.5px,transparent 1.5px 6px) 0 2px/100% 7px no-repeat,linear-gradient(#9C94C6,#9C94C6) 0 0/100% 2px no-repeat}
++.floor.f7::before{left:11%;right:11%}
++.floor.f6::before{left:0;right:0}
++.floor.f8 .units,.floor.f7 .units{z-index:1}
++.planter{position:absolute;top:-16px;width:18px;height:16px;z-index:1;pointer-events:none}
++/* unit = window + balcony */
++.unit{position:relative;min-height:60px;border-radius:4px 4px 2px 2px;padding:7px 9px 17px;text-align:left;display:flex;flex-direction:column;justify-content:flex-start;
++  color:var(--night-ink-2);overflow:hidden;background:#17142A;
++  box-shadow:0 0 0 2px #2A2546,inset 0 0 0 1px rgba(0,0,0,.4);transition:transform .18s,box-shadow .25s,filter .25s}
++.unit > *{position:relative;z-index:2}
++/* curtains + mullion */
++.unit::before{content:"";position:absolute;inset:0 0 13px;z-index:1;pointer-events:none;background:
++  linear-gradient(90deg,var(--cur,transparent) 0 11%,transparent 11% 89%,var(--cur,transparent) 89%),
++  linear-gradient(90deg,transparent calc(50% - 1px),rgba(20,16,40,.35) calc(50% - 1px) calc(50% + 1px),transparent calc(50% + 1px)),
++  linear-gradient(180deg,rgba(255,255,255,.16),transparent 35%)}
++/* balcony railing */
++.unit::after{content:"";position:absolute;left:-2px;right:-2px;bottom:0;height:14px;z-index:3;pointer-events:none;background:
++  linear-gradient(#B9B2DC,#B9B2DC) 0 0/100% 2px no-repeat,
++  repeating-linear-gradient(90deg,rgba(200,194,232,.85) 0 1.5px,transparent 1.5px 6px) 0 2px/100% 9px no-repeat,
++  linear-gradient(#5E5786,#4A4470) 0 11px/100% 3px no-repeat}
++.unit:hover{transform:translateY(-1px);filter:brightness(1.08)}
++.unit:focus-visible{outline:2px solid #fff;outline-offset:3px}
+ .unit .u-no{font:700 15px/1 var(--f-mono);letter-spacing:.02em}
+-.unit .u-who{font-size:11px;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;opacity:.85}
+-.unit .u-dot{position:absolute;top:6px;right:6px;width:7px;height:7px;border-radius:50%;z-index:1}
+-.u-dot.paid{background:#3BD28A}
++.unit .u-who{font-size:11px;line-height:1.2;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:500}
++.unit .u-dot{position:absolute;top:6px;right:6px;width:8px;height:8px;border-radius:50%;z-index:4}
++.u-dot.paid{background:#3BD28A;box-shadow:0 0 0 2px rgba(10,40,25,.35),0 0 8px #3BD28A}
+ .u-dot.due{background:transparent;border:1.5px solid currentColor}
+ .u-dot.none{display:none}
+-.unit.st-ok{background:linear-gradient(180deg,#FFE09A,var(--glow) 45%,var(--glow-2));color:#3A2600;box-shadow:0 0 22px -2px rgba(255,194,75,.55)}
+-.unit.st-soon{background:linear-gradient(180deg,#8C6B2C,#6B5021);color:#FFE2A6;box-shadow:0 0 14px -4px rgba(255,194,75,.4)}
+-.unit.st-late{background:#2A1828;color:#FF9C94;box-shadow:inset 0 0 0 1.5px #D4433A}
+-.unit.st-vacant{background:repeating-linear-gradient(135deg,#1E1A33 0 6px,#231F3A 6px 12px);color:#7C7799}
+-.lobby{border-radius:5px;background:linear-gradient(180deg,#5A4A7A,#3A3156);display:flex;align-items:flex-end;justify-content:center;padding-bottom:6px;font-size:10.5px;color:var(--night-ink-2);position:relative}
+-.lobby::before{content:"";position:absolute;bottom:0;left:50%;width:34%;height:62%;transform:translateX(-50%);background:linear-gradient(180deg,#FFE3A0,#F5A623);border-radius:3px 3px 0 0;opacity:.85;box-shadow:0 0 18px rgba(255,194,75,.5)}
+-.lobby span{position:relative;z-index:1;color:#3A2600;font-weight:700}
+-.ground{height:14px;margin:0 -18px;background:linear-gradient(180deg,#15121F,#0E0C17);position:relative}
+-.ground::before{content:"";position:absolute;left:0;right:0;top:0;height:2px;background:#4A4268}
+-.legend{display:flex;flex-wrap:wrap;gap:8px 14px;padding:14px 0 16px;font-size:12px;color:var(--night-ink-2)}
+-.legend i{display:inline-block;width:12px;height:12px;border-radius:3px;vertical-align:-2px;margin-right:5px}
++.u-badge{position:absolute!important;right:5px;bottom:17px;width:16px;height:16px;border-radius:50%;display:grid;place-items:center;z-index:4!important}
++.u-badge svg{width:11px;height:11px}
++/* statuses */
++.unit.st-ok{--cur:rgba(206,120,40,.45);background:radial-gradient(120% 90% at 50% 20%,#FFF0C2,#FFD27A 45%,#F5A623);color:#3A2600;
++  box-shadow:0 0 0 2px #2A2546,0 0 26px -2px rgba(255,190,80,.65)}
++.unit.st-soon{--cur:rgba(80,50,10,.5);background:radial-gradient(120% 90% at 50% 20%,#D9A653,#A87A30 60%,#7A5620);color:#FFF1D2;
++  box-shadow:0 0 0 2px #2A2546,0 0 16px -4px rgba(255,180,80,.45)}
++.unit.st-soon .u-badge{background:#FFE2A6;color:#6B4A10}
++.unit.st-late{--cur:rgba(120,20,30,.5);background:radial-gradient(120% 90% at 50% 25%,#7A2A36,#4A1724 70%);color:#FFD0CB;
++  box-shadow:0 0 0 2px #E2574C,0 0 22px -2px rgba(255,90,78,.55)}
++.unit.st-late .u-badge{background:#FF5A4E;color:#fff}
++.unit.st-vacant{background:repeating-linear-gradient(180deg,#24203C 0 4px,#1B1830 4px 7px);color:#8E89AE}
++.unit.st-vacant::before{background:linear-gradient(180deg,rgba(255,255,255,.05),transparent 40%)}
++@media (prefers-reduced-motion:no-preference){ .unit.st-late .u-badge{animation:ping 2s infinite} }
++@keyframes ping{0%{box-shadow:0 0 0 0 rgba(255,90,78,.7)}70%{box-shadow:0 0 0 7px rgba(255,90,78,0)}}
++/* ground floor */
++.floor.f1 .units{grid-template-columns:1fr 1fr;padding-bottom:0;background:linear-gradient(180deg,#524A78,#433C66)}
++.floor.f1 .unit{margin-bottom:7px}
++.lobby{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;min-height:67px}
++.lobby .sign{position:absolute;top:0;left:50%;transform:translateX(-50%);max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
++  font:700 9.5px/1 var(--f-mono);letter-spacing:.14em;text-transform:uppercase;color:#FFE7B0;padding:4px 7px;border-radius:3px;background:#221D3A;
++  box-shadow:0 0 0 1px #6A6292,0 0 12px rgba(255,200,110,.35);text-shadow:0 0 6px rgba(255,200,110,.8)}
++.lobby .awning{position:absolute;top:22px;left:4%;right:4%;height:6px;border-radius:2px;background:linear-gradient(#C9C2EA,#8E86BA);box-shadow:0 6px 14px -2px rgba(255,200,110,.45)}
++.lobby .door{width:62%;height:36px;border-radius:3px 3px 0 0;display:grid;grid-template-columns:1fr 1fr;gap:2px;padding:2px 2px 0;background:#2A2546}
++.lobby .door i{background:linear-gradient(180deg,#FFF1C9,#FFC867 60%,#F2A33A);border-radius:1px;position:relative}
++.lobby .door i::after{content:"";position:absolute;top:45%;width:2px;height:8px;border-radius:2px;background:#8A5B12}
++.lobby .door i:first-child::after{right:3px}.lobby .door i:last-child::after{left:3px}
++.lobby .step{width:78%;height:4px;background:#8E86BA;border-radius:1px 1px 0 0}
++/* street */
++.street{position:relative;height:46px;margin-top:-1px}
++.street .road{position:absolute;inset:auto 0 0 0;width:100%;height:100%}
++.street .tree,.street .lamp{position:absolute;bottom:22px;pointer-events:none}
++.legend{display:flex;flex-wrap:wrap;gap:8px 14px;padding:14px 20px 16px;font-size:12px;color:var(--night-ink-2);background:rgba(10,8,20,.35)}
++.legend span{display:inline-flex;align-items:center;gap:6px}
++.legend i{display:inline-block;width:12px;height:12px;border-radius:3px}
+ @media (prefers-reduced-motion:no-preference){
+-  .tower.anim .unit{animation:lightsOn .7s both;animation-delay:calc(var(--i)*70ms + 150ms)}
+-  @keyframes lightsOn{0%{filter:brightness(.25) saturate(.3)}60%{filter:brightness(1.15)}100%{filter:none}}
++  .tower.anim .unit:not(.st-vacant){animation:lightsOn .8s both;animation-delay:calc(var(--i)*65ms + 200ms)}
++  @keyframes lightsOn{0%{filter:brightness(.2) saturate(.2)}55%{filter:brightness(1.25)}70%{filter:brightness(.85)}100%{filter:none}}
++  .tower .twinkle{animation:tw 3.5s infinite ease-in-out}
++  @keyframes tw{50%{opacity:.25}}
+ }
+ 
+ /* ---------- Home ---------- */
+@@ -194,6 +259,23 @@ h1,h2,h3{font-family:var(--f-display);margin:0;letter-spacing:-.02em}
+ .banner .grow{flex:1}
+ .banner .btn{background:var(--night-2);border-color:var(--night-3);color:#fff}
+ 
++.chart-box svg{display:block;overflow:visible}
++.chart-box.sm{height:190px}
++.viz-cap{display:flex;flex-wrap:wrap;gap:4px 16px;font-size:12.5px;color:var(--ink-3);margin-bottom:6px}
++.viz-cap span{display:inline-flex;align-items:center;gap:6px}
++.viz-cap i{width:10px;height:10px;border-radius:3px;display:inline-block}
++.viz-cap i.dash{width:14px;height:0;border-top:1.6px dashed var(--ink-2);border-radius:0}
++.viz-cap .warnc{color:var(--bad);font-weight:600}
++.donut-box svg{display:block;margin:auto;overflow:visible}
++.catlist div{transition:opacity .15s;cursor:default;border-radius:8px}
++.catlist div.dim{opacity:.4}
++.viz-tip{position:fixed;left:0;top:0;z-index:70;pointer-events:none;min-width:170px;background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:12px;padding:10px 12px;font-size:13px;box-shadow:0 14px 34px -12px rgba(20,20,40,.35);opacity:0;transition:opacity .12s}
++.viz-tip.on{opacity:1}
++.viz-tip .th{font-weight:700;margin-bottom:6px;font-family:var(--f-display)}
++.viz-tip .tr{display:flex;align-items:center;gap:8px;padding:2px 0}
++.viz-tip .tr i{width:10px;height:10px;border-radius:3px;flex:none}
++.viz-tip .tr b{margin-left:auto;font-variant-numeric:tabular-nums;padding-left:12px}
++.viz-tip .tn{margin-top:6px;font-size:12px;color:var(--ink-3);max-width:220px}
+ /* ---------- Utilities ---------- */
+ .util-head{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin-bottom:16px}
+ .progress{height:8px;background:var(--line-2);border-radius:99px;overflow:hidden;min-width:120px;flex:1}
+@@ -310,6 +392,7 @@ h1,h2,h3{font-family:var(--f-display);margin:0;letter-spacing:-.02em}
+ .scrim.on{opacity:1;pointer-events:auto}
+ .sheet{position:fixed;z-index:51;left:50%;top:50%;width:min(560px,calc(100vw - 32px));max-height:min(86vh,820px);transform:translate(-50%,-46%) scale(.98);opacity:0;pointer-events:none;background:var(--surface);border-radius:24px;box-shadow:0 30px 80px -20px rgba(0,0,0,.45);display:flex;flex-direction:column;transition:opacity .2s,transform .25s cubic-bezier(.2,.8,.2,1)}
+ .sheet.on{opacity:1;pointer-events:auto;transform:translate(-50%,-50%)}
++.sheet:not(.on){visibility:hidden;transition-property:opacity,transform,visibility;transition-delay:0s,0s,.3s}
+ .sheet-h{display:flex;align-items:center;gap:10px;padding:18px 20px 10px}
+ .sheet-h h3{font-size:21px;flex:1}
+ .sheet-b{padding:4px 20px 20px;overflow:auto;overscroll-behavior:contain}
+@@ -368,9 +451,11 @@ h1,h2,h3{font-family:var(--f-display);margin:0;letter-spacing:-.02em}
+   .ledger.three > div:nth-child(2){border-left:0}
+   .ledger .val{font-size:23px}
+   .chart-box{height:210px}
+-  .tower{border-radius:22px;padding:16px 14px 0}
+-  .unit{min-height:42px;padding:6px 8px}
+-  .floor{padding:4px 0}
++  .tower{border-radius:22px}
++  .tower-head{padding:16px 16px 0}
++  .bld{width:calc(100% - 80px)}
++  .unit{min-height:56px;padding:6px 8px 17px}
++  .legend{padding:12px 16px 14px}
+   .uhead{display:none}
+   .ulist{gap:12px}
+   .urow{grid-template-columns:1fr auto;grid-template-areas:"apt tot" "e e" "w w" "l l";gap:14px 12px;background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:14px;box-shadow:var(--shadow)}
+@@ -397,7 +482,7 @@ h1,h2,h3{font-family:var(--f-display);margin:0;letter-spacing:-.02em}
+   .toasts{bottom:calc(96px + env(safe-area-inset-bottom))}
+   .in{font-size:16px}
+ }
+-@media (max-width:380px){ .ledger .val{font-size:20px} .unit .u-who{display:none} }
++@media (max-width:380px){ .ledger .val{font-size:20px} .bld{width:calc(100% - 56px)} .unit .u-who{font-size:10px} }
+ </style>
+ </head>
+ <body>
+@@ -825,18 +910,64 @@ function render(){
+ }
+ 
+ /* ---------- views: HOME ---------- */
++const PLANT=`<svg viewBox="0 0 18 16" class="planter-svg" aria-hidden="true"><circle cx="6" cy="6" r="4" fill="#3F7A5C"/><circle cx="11" cy="4.5" r="4.5" fill="#4E9470"/><circle cx="13" cy="8" r="3" fill="#3A6E54"/><path d="M3 9h12l-1.5 7h-9z" fill="#B0673F"/><path d="M3 9h12v1.6H3z" fill="#C97C4E"/></svg>`;
++let SKYLINE='';
++function skylineSVG(){
++  if(SKYLINE)return SKYLINE;
++  let s=7,r=()=>(s=(s*16807)%2147483647)/2147483647,x=0,b='',w='';
++  while(x<400){const bw=14+r()*30,bh=30+r()*78,y=120-bh;b+=`<rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${bw.toFixed(1)}" height="${bh.toFixed(1)}"/>`;
++    if(r()>.5)b+=`<rect x="${(x+bw/2-.6).toFixed(1)}" y="${(y-8).toFixed(1)}" width="1.2" height="8"/>`;
++    for(let yy=y+6;yy<114;yy+=8)for(let xx=x+4;xx<x+bw-5;xx+=6)if(r()>.82)w+=`<rect x="${xx.toFixed(1)}" y="${yy.toFixed(1)}" width="2.4" height="3" opacity="${(.35+r()*.6).toFixed(2)}"/>`;
++    x+=bw+1+r()*5}
++  return SKYLINE=`<svg class="skyline" viewBox="0 0 400 120" preserveAspectRatio="xMidYMax slice" aria-hidden="true"><g fill="#231E3D">${b}</g><g fill="#FFCF7A">${w}</g></svg>`;
++}
++const ROOF=`<svg viewBox="0 0 200 46" preserveAspectRatio="xMidYMax meet" aria-hidden="true">
++  <defs><linearGradient id="inox" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#F2F1FA"/><stop offset=".35" stop-color="#C9C7DA"/><stop offset=".7" stop-color="#8F8CA8"/><stop offset="1" stop-color="#B7B4CC"/></linearGradient>
++  <linearGradient id="solar" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#3A5DA8"/><stop offset="1" stop-color="#1D2C5E"/></linearGradient></defs>
++  <g stroke="#6A6292" stroke-width="2"><path d="M30 44V34M62 44V34M36 44l-4-10M56 44l4-10"/></g>
++  <rect x="22" y="16" width="48" height="19" rx="9.5" fill="url(#inox)"/><ellipse cx="26" cy="25.5" rx="4" ry="9.5" fill="#E7E5F2"/>
++  <path d="M40 16v19M54 16v19" stroke="#8F8CA8" stroke-width="1"/>
++  <path d="M100 44V6" stroke="#8E86BA" stroke-width="1.6"/><path d="M93 16h14M95 23h10" stroke="#8E86BA" stroke-width="1.3"/>
++  <circle class="beacon" cx="100" cy="5" r="3" fill="#FF5A4E"/><circle class="beacon" cx="100" cy="5" r="7" fill="#FF5A4E" opacity=".25"/>
++  <g transform="translate(128 22) skewX(-18)"><rect width="46" height="16" rx="1.5" fill="url(#solar)" stroke="#8FA6E0" stroke-width=".8"/><path d="M11.5 0v16M23 0v16M34.5 0v16M0 8h46" stroke="#8FA6E0" stroke-width=".5" opacity=".8"/></g>
++  <path d="M136 38v6M166 38v6" stroke="#6A6292" stroke-width="2"/>
++  <rect x="0" y="42" width="200" height="4" rx="1" fill="#6A6292"/>
++</svg>`;
++const TREE=(flip)=>`<svg class="tree" viewBox="0 0 46 74" width="46" height="74" style="${flip?'right:6px':'left:6px'}" aria-hidden="true">
++  <path d="M21 74V44h4v30z" fill="#4A3348"/><path d="M23 52l-7-6M23 48l6-5" stroke="#4A3348" stroke-width="2"/>
++  <circle cx="14" cy="34" r="12" fill="#244A3C"/><circle cx="32" cy="32" r="13" fill="#2B5745"/><circle cx="23" cy="19" r="15" fill="#2F604B"/>
++  <circle cx="${flip?17:29}" cy="17" r="8" fill="#3E7A5D" opacity=".75"/></svg>`;
++const LAMP=`<svg class="lamp" viewBox="0 0 70 92" width="70" height="92" style="right:-6px" aria-hidden="true">
++  <defs><radialGradient id="lg" cx="50%" cy="0%" r="100%"><stop offset="0" stop-color="#FFE1A0" stop-opacity=".55"/><stop offset="1" stop-color="#FFE1A0" stop-opacity="0"/></radialGradient></defs>
++  <path d="M22 12 L-4 92 H52 Z" fill="url(#lg)"/><path d="M48 92V10q0-6-6-6H24" stroke="#7D76A6" stroke-width="2.4" fill="none"/>
++  <path d="M14 8h16l-2 5H16z" fill="#9E97C6"/><ellipse cx="22" cy="13.5" rx="6" ry="2" fill="#FFE7B0"/></svg>`;
++const SCOOTER=`<svg viewBox="0 0 44 26" width="40" height="24" aria-hidden="true" style="position:absolute;left:24%;bottom:2px">
++  <circle cx="8" cy="20" r="5" fill="#15122A" stroke="#8E86BA" stroke-width="1.6"/><circle cx="35" cy="20" r="5" fill="#15122A" stroke="#8E86BA" stroke-width="1.6"/>
++  <path d="M8 20h8l3-7h10l6 7" stroke="#C25A4F" stroke-width="3" fill="none" stroke-linejoin="round"/><path d="M11 12h13a3 3 0 0 1-3 4h-9z" fill="#2A2546"/>
++  <path d="M32 14l-3-10h5" stroke="#8E86BA" stroke-width="1.6" fill="none"/><circle cx="35" cy="5" r="1.6" fill="#FFE7B0"/></svg>`;
++const STREET=`<svg class="road" viewBox="0 0 400 46" preserveAspectRatio="none" aria-hidden="true">
++  <rect y="0" width="400" height="16" fill="#3A3356"/><rect y="0" width="400" height="2" fill="#6A6292"/>
++  <rect y="16" width="400" height="3" fill="#565080"/><rect y="19" width="400" height="27" fill="#16131F"/>
++  <path d="M0 33H400" stroke="#E8D9A8" stroke-width="1.6" stroke-dasharray="14 12" opacity=".55"/></svg>`;
++const BADGE={soon:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><circle cx="12" cy="12" r="8"/><path d="M12 8v4l2.5 2"/></svg>`,
++  late:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round"><path d="M12 6v8M12 18.5v.01"/></svg>`};
+ function towerHTML(){
+   const m=state.month, occ=DB.apartments.filter(a=>a.tenant).length;
+   const late=lateCount(); let i=0;
+-  const unit=id=>{const a=apt(id),rs=rentStatus(id),b=bill(id,m);const dot=b.entered?(b.paid?'paid':'due'):'none';
+-    return `<button class="unit st-${stClass(rs.st)}" data-act="apt" data-apt="${id}" style="--i:${i++}" aria-label="Căn ${id}: ${esc(a.tenant||'trống')}, ${rs.label}"><span class="u-dot ${dot}"></span><span class="u-no">${id}</span><span class="u-who">${esc(a.tenant||'Trống')}</span></button>`};
++  const unit=id=>{const a=apt(id),rs=rentStatus(id),b=bill(id,m),st=stClass(rs.st);const dot=b.entered?(b.paid?'paid':'due'):'none';
++    const util=b.entered?(b.paid?'đã thu điện nước':'chưa thu điện nước'):'';
++    return `<button class="unit st-${st}" data-act="apt" data-apt="${id}" style="--i:${i++}" aria-label="Căn ${id}: ${esc(a.tenant||'trống')}, ${rs.label}${util?', '+util:''}"><span class="u-dot ${dot}"></span><span class="u-no">${id}</span><span class="u-who">${esc(a.tenant||'Trống')}</span>${BADGE[st]?`<span class="u-badge">${BADGE[st]}</span>`:''}</button>`};
++  const floors=FLOORS.map(row=>{const f=row[0][0],isG=row[0]==='100';
++    const pl=f==='7'?`<span class="planter" style="left:13%">${PLANT}</span><span class="planter" style="right:13%">${PLANT}</span>`:f==='6'?`<span class="planter" style="left:2%">${PLANT}</span><span class="planter" style="right:3%">${PLANT}</span>`:'';
++    return `<div class="floor f${f}">${pl}<div class="units" style="--n:${row.length}">${row.map(unit).join('')}${isG?`<div class="lobby" aria-hidden="true"><span class="sign">${esc(DB.settings.buildingName)}</span><span class="awning"></span><span class="door"><i></i><i></i></span><span class="step"></span></div>`:''}</div></div>`}).join('');
+   return `<div class="tower ${state.firstPaint?'anim':''}">
+-    <div class="tower-head"><div><div class="t1">${esc(DB.settings.buildingName)}</div><div class="t2">${occ}/13 căn đang thuê${late?` · <span style="color:#FF9C94">${late} căn cần nhắc tiền nhà</span>`:' · tiền nhà đều đặn'}</div></div><div class="moon"></div></div>
+-    <div class="bld"><div class="antenna"></div>
+-      ${FLOORS.map(row=>{const f=row[0][0];const isG=row[0]==='100';return `<div class="floor f${f}"><span class="fl">T${f}</span><div class="units" style="--n:${isG?2:row.length}">${row.map(unit).join('')}${isG?'<div class="lobby"><span>Sảnh</span></div>':''}</div></div>`}).join('')}
++    <div class="tower-head"><div><div class="t1">${esc(DB.settings.buildingName)}</div><div class="t2">${occ}/13 căn đang thuê${late?` · <span class="late">${late} căn cần nhắc tiền nhà</span>`:' · tiền nhà đều đặn'}</div></div><div class="moon" aria-hidden="true"></div></div>
++    <div class="scene">${skylineSVG()}
++      <span class="cloud" style="width:70px;left:8%;top:40px"></span><span class="cloud" style="width:54px;right:10%;top:96px"></span>
++      <div class="bld"><div class="roof">${ROOF}</div>${floors}</div>
++      <div class="street">${STREET}${TREE(false)}${LAMP}${SCOOTER}</div>
+     </div>
+-    <div class="ground"></div>
+-    <div class="legend"><span><i style="background:var(--glow)"></i>Đã trả tiền nhà</span><span><i style="background:#7A5C26"></i>Hết hạn tháng này</span><span><i style="background:#2A1828;box-shadow:inset 0 0 0 1.5px #D4433A"></i>Quá hạn</span><span><i style="background:#3BD28A;border-radius:50%;width:8px;height:8px"></i>Đã thu điện nước</span></div>
++    <div class="legend"><span><i style="background:linear-gradient(#FFE09A,#F5A623)"></i>Đã trả tiền nhà</span><span><i style="background:#A87A30"></i>Hết hạn tháng này</span><span><i style="background:#4A1724;box-shadow:inset 0 0 0 1.5px #E2574C"></i>Quá hạn</span><span><i style="background:repeating-linear-gradient(180deg,#3A3458 0 3px,#1B1830 3px 5px)"></i>Trống</span><span><i style="background:#3BD28A;border-radius:50%;width:8px;height:8px"></i>Đã thu điện nước</span></div>
+   </div>`;
+ }
+ function alertsHTML(){
+@@ -866,21 +997,115 @@ function viewHome(){
+         <div><div class="lab"><span class="sw" style="background:var(--glow)"></span>Còn lại</div><div class="val num" style="color:${S.net<0?'var(--bad)':'inherit'}">${short(S.net)}</div><div class="foot">${mLabel(state.month)}</div></div>
+         <div><div class="lab"><span class="sw" style="background:var(--elec)"></span>Điện nước chưa thu</div><div class="val num">${short(S.utilUnpaid)}</div><div class="foot">${S.entered}/13 căn đã nhập số</div></div>
+       </div>
+-      <div class="card"><div class="card-h"><h2>Thu và chi 12 tháng</h2><span class="grow"></span><span class="chip"><span class="sw" style="background:var(--ok)"></span>Thu</span><span class="chip"><span class="sw" style="background:var(--c-salary)"></span>Chi</span></div><div class="chart-box"><canvas id="cBar" aria-label="Biểu đồ thu chi 12 tháng"></canvas></div></div>
++      <div class="card"><div class="card-h"><h2>Thu và chi 12 tháng</h2><span class="grow"></span><span class="chip"><span class="sw" style="background:var(--ok)"></span>Thu</span><span class="chip"><span class="sw" style="background:var(--c-salary)"></span>Chi</span><span class="chip"><span class="sw" style="background:var(--glow-2);height:3px;width:12px;border-radius:2px"></span>Còn lại</span></div><div class="chart-box" id="cFlow"></div><div class="hint" style="font-size:12px;color:var(--ink-3);margin-top:6px">Rê chuột hoặc chạm vào cột để xem chi tiết, bấm để chuyển sang tháng đó.</div></div>
+       <div class="card"><div class="card-h"><h2>Cần xử lý</h2></div>${alertsHTML()}</div>
+     </div>
+   </div>`;
+ }
+-function chartDefaults(){if(!window.Chart)return;Chart.defaults.font.family="'Be Vietnam Pro',system-ui,sans-serif";Chart.defaults.font.size=12;Chart.defaults.color=cssv('--ink-3')}
+-function afterHome(){
+-  if(!window.Chart)return; chartDefaults();
+-  const ms=[...Array(12)].map((_,i)=>addM(state.month,i-11)), S=ms.map(monthSummary);
+-  charts.push(new Chart($('#cBar'),{type:'bar',data:{labels:ms.map(mShort),datasets:[
+-    {label:'Thu',data:S.map(s=>s.income),backgroundColor:cssv('--ok'),borderRadius:5,maxBarThickness:16,categoryPercentage:.7,barPercentage:.9},
+-    {label:'Chi',data:S.map(s=>s.expense),backgroundColor:cssv('--c-salary'),borderRadius:5,maxBarThickness:16,categoryPercentage:.7,barPercentage:.9}]},
+-    options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>` ${c.dataset.label}: ${vnd(c.raw)}`}}},
+-      scales:{x:{grid:{display:false},border:{display:false}},y:{grid:{color:cssv('--line-2')},border:{display:false},ticks:{callback:v=>short(v),maxTicksLimit:5}}}}}));
++function afterHome(){drawFlow($('#cFlow'))}
++
++/* ---------- d3 charts ---------- */
++const D3OK=()=>!!window.d3;
++function tipEl(){let t=document.getElementById('vizTip');if(!t){t=document.createElement('div');t.id='vizTip';t.className='viz-tip';t.setAttribute('role','status');document.body.appendChild(t)}return t}
++function tipShow(html,ev){const t=tipEl();t.innerHTML=html;t.classList.add('on');const r=t.getBoundingClientRect(),pad=12;
++  let x=ev.clientX+14,y=ev.clientY-r.height-12;if(x+r.width>innerWidth-pad)x=ev.clientX-r.width-14;if(x<pad)x=pad;if(y<pad)y=ev.clientY+16;t.style.transform=`translate(${x}px,${y}px)`}
++function tipHide(){document.getElementById('vizTip')?.classList.remove('on')}
++const vizRow=(c,l,v,line)=>`<div class="tr"><i style="background:${c}${line?';height:3px;border-radius:2px':''}"></i><span>${l}</span><b>${v}</b></div>`;
++function vizNoD3(el){el.innerHTML='<div class="empty" style="padding:40px 10px">Không tải được thư viện biểu đồ. Kiểm tra mạng rồi mở lại trang.</div>'}
++function roundTop(x,y,w,h,r){r=Math.min(r,w/2,h);if(h<=0)return'';return `M${x},${y+h}V${y+r}Q${x},${y} ${x+r},${y}H${x+w-r}Q${x+w},${y} ${x+w},${y+r}V${y+h}Z`}
++
++/* Home: income vs expense, 12 months, net as a line on the same axis */
++function drawFlow(el){
++  if(!el)return; if(!D3OK())return vizNoD3(el);
++  const ms=[...Array(12)].map((_,i)=>addM(state.month,i-11)), data=ms.map(m=>({m,...monthSummary(m)}));
++  const W=el.clientWidth||600,H=el.clientHeight||250,M={t:12,r:6,b:26,l:44},iw=W-M.l-M.r,ih=H-M.t-M.b;
++  const cIn=cssv('--ok'),cOut=cssv('--c-salary'),cNet=cssv('--glow-2'),ink3=cssv('--ink-3'),grid=cssv('--line-2'),surf=cssv('--surface');
++  const x=d3.scaleBand().domain(ms).range([0,iw]).paddingInner(.28).paddingOuter(.1);
++  const lo=Math.min(0,d3.min(data,d=>d.net)), hi=d3.max(data,d=>Math.max(d.income,d.expense))||1;
++  const y=d3.scaleLinear().domain([lo,hi]).nice(4).range([ih,0]);
++  const sub=x.bandwidth()/2-1;
++  el.innerHTML='';
++  const svg=d3.select(el).append('svg').attr('width',W).attr('height',H).attr('role','img').attr('aria-label','Biểu đồ thu, chi và còn lại 12 tháng gần nhất');
++  const g=svg.append('g').attr('transform',`translate(${M.l},${M.t})`);
++  g.append('g').selectAll('line').data(y.ticks(4)).join('line').attr('x1',0).attr('x2',iw).attr('y1',d=>y(d)).attr('y2',d=>y(d)).attr('stroke',d=>d===0?cssv('--line'):grid);
++  g.append('g').selectAll('text').data(y.ticks(4)).join('text').attr('x',-8).attr('y',d=>y(d)).attr('dy','.32em').attr('text-anchor','end').attr('fill',ink3).attr('font-size',11).text(d=>d===0?'0':short(d));
++  g.append('g').selectAll('text').data(ms).join('text').attr('x',d=>x(d)+x.bandwidth()/2).attr('y',ih+18).attr('text-anchor','middle').attr('font-size',11)
++    .attr('fill',d=>d===state.month?cssv('--ink'):ink3).attr('font-weight',d=>d===state.month?700:400).text(d=>W<520?'T'+(+d.slice(5)):mShort(d));
++  const hl=g.append('rect').attr('y',-4).attr('height',ih+8).attr('rx',8).attr('fill',cssv('--surface-2')).attr('opacity',0);
++  const y0=y(0),dur=matchMedia('(prefers-reduced-motion:reduce)').matches?0:650;
++  const bars=(key,col,dx)=>g.append('g').selectAll('path').data(data).join('path').attr('fill',col)
++    .attr('d',d=>roundTop(x(d.m)+dx,y0,sub,0,4))
++    .transition().duration(dur).delay((d,i)=>i*35).ease(d3.easeCubicOut).attr('d',d=>roundTop(x(d.m)+dx,y(d[key]),sub,y0-y(d[key]),4));
++  bars('income',cIn,0); bars('expense',cOut,sub+2);
++  const line=d3.line().x(d=>x(d.m)+x.bandwidth()/2).y(d=>y(d.net)).curve(d3.curveMonotoneX);
++  const path=g.append('path').datum(data).attr('fill','none').attr('stroke',cNet).attr('stroke-width',2).attr('stroke-linejoin','round').attr('d',line);
++  const len=path.node().getTotalLength(); if(dur)path.attr('stroke-dasharray',`${len} ${len}`).attr('stroke-dashoffset',len).transition().delay(450).duration(800).attr('stroke-dashoffset',0);
++  const dots=g.append('g').selectAll('circle').data(data).join('circle').attr('cx',d=>x(d.m)+x.bandwidth()/2).attr('cy',d=>y(d.net)).attr('r',d=>d.m===state.month?4.5:3)
++    .attr('fill',d=>d.m===state.month?cNet:surf).attr('stroke',cNet).attr('stroke-width',2);
++  // direct label on current month's net
++  const cur=data[data.length-1];
++  g.append('text').attr('x',x(cur.m)-4).attr('y',y(cur.net)-12).attr('text-anchor','end').attr('font-size',11).attr('font-weight',700).attr('fill',cssv('--ink')).attr('paint-order','stroke').attr('stroke',surf).attr('stroke-width',4).attr('stroke-linejoin','round').text('Còn '+short(cur.net));
++  // hover bands
++  g.append('g').selectAll('rect').data(data).join('rect').attr('x',d=>x(d.m)-x.step()*x.paddingInner()/2).attr('width',x.step()).attr('y',-4).attr('height',ih+24).attr('fill','transparent').style('cursor','pointer')
++    .on('pointermove',(ev,d)=>{hl.attr('x',x(d.m)-6).attr('width',x.bandwidth()+12).attr('opacity',1);dots.attr('r',o=>o===d?5.5:(o.m===state.month?4.5:3));
++      tipShow(`<div class="th">${mLabel(d.m)}</div>${vizRow(cIn,'Thu',vnd(d.income))}${vizRow(cOut,'Chi',vnd(d.expense))}${vizRow(cNet,'Còn lại',vnd(d.net),1)}`,ev)})
++    .on('pointerleave',()=>{hl.attr('opacity',0);dots.attr('r',o=>o.m===state.month?4.5:3);tipHide()})
++    .on('click',(ev,d)=>{if(d.m!==state.month){tipHide();state.month=d.m;render()}});
++  el.insertAdjacentHTML('beforeend',`<div class="sr"><table><caption>Thu chi 12 tháng</caption><tr><th>Tháng</th><th>Thu</th><th>Chi</th><th>Còn lại</th></tr>${data.map(d=>`<tr><td>${mShort(d.m)}</td><td>${vnd(d.income)}</td><td>${vnd(d.expense)}</td><td>${vnd(d.net)}</td></tr>`).join('')}</table></div>`);
++}
++
++/* Money: expense by category donut */
++function drawDonut(el){
++  if(!el)return; if(!D3OK())return vizNoD3(el);
++  const S=monthSummary(state.month), keys=Object.keys(CATS), rows=keys.map(k=>({k,v:S.byCat[k]||0})), has=rows.some(r=>r.v>0);
++  const size=el.clientWidth||170,R=size/2,ri=R*.7;
++  el.querySelector('svg')?.remove();
++  const svg=d3.select(el).insert('svg',':first-child').attr('width',size).attr('height',size).attr('viewBox',[-R,-R,size,size]).attr('role','img').attr('aria-label','Chi theo nhóm');
++  const arc=d3.arc().innerRadius(ri).outerRadius(R-4).cornerRadius(3), arcH=d3.arc().innerRadius(ri).outerRadius(R).cornerRadius(3);
++  const center=el.querySelector('.donut-c div');
++  const setC=(v,l)=>{if(center)center.innerHTML=`<b class="num">${short(v)}</b><span>${l}</span>`};
++  if(!has){svg.append('circle').attr('r',(R-4+ri)/2).attr('fill','none').attr('stroke',cssv('--line')).attr('stroke-width',R-4-ri);return}
++  const pie=d3.pie().value(d=>d.v).sort(null).padAngle(.025);
++  const dur=matchMedia('(prefers-reduced-motion:reduce)').matches?0:700;
++  const segs=svg.selectAll('path').data(pie(rows.filter(r=>r.v>0))).join('path').attr('fill',d=>cssv(CATS[d.data.k].v)).style('cursor','pointer')
++    .attr('stroke',cssv('--surface')).attr('stroke-width',2);
++  segs.transition().duration(dur).ease(d3.easeCubicOut).attrTween('d',d=>{const i=d3.interpolate({startAngle:0,endAngle:0},d);return t=>arc(i(t))});
++  const focus=k=>{segs.attr('d',d=>(d.data.k===k?arcH:arc)(d)).attr('opacity',d=>!k||d.data.k===k?1:.35);
++    document.querySelectorAll('.catlist [data-cat]').forEach(r=>r.classList.toggle('dim',!!k&&r.dataset.cat!==k));
++    if(k)setC(S.byCat[k]||0,`${CATS[k].name} · ${Math.round((S.byCat[k]||0)/S.expense*100)}%`);else setC(S.expense,'tổng chi')};
++  segs.on('pointerenter',(e,d)=>focus(d.data.k)).on('pointerleave',()=>focus(null));
++  document.querySelectorAll('.catlist [data-cat]').forEach(r=>{r.onpointerenter=()=>S.byCat[r.dataset.cat]&&focus(r.dataset.cat);r.onpointerleave=()=>focus(null)});
++}
++
++/* Utilities: electricity used by each apartment this month */
++function drawKwh(el){
++  if(!el)return; if(!D3OK())return vizNoD3(el);
++  const m=state.month, data=APTS.map(id=>{const b=bill(id,m);return{id,v:b.eu!=null?Math.max(0,b.eu):null,money:b.em,tenant:b.a.tenant}});
++  const vals=data.filter(d=>d.v!=null).map(d=>d.v);
++  const W=el.clientWidth||600,H=el.clientHeight||190,M={t:22,r:8,b:24,l:36},iw=W-M.l-M.r,ih=H-M.t-M.b;
++  el.innerHTML='';
++  if(!vals.length){const c=document.getElementById('cKwhCap');if(c)c.innerHTML='';el.innerHTML=`<div class="empty" style="padding:44px 10px"><b>Chưa có số điện ${mShort(m)}</b>Nhập số công tơ bên dưới, biểu đồ sẽ tự hiện.</div>`;return}
++  const col=cssv('--elec'),ink3=cssv('--ink-3'),avg=d3.mean(vals),max=d3.max(vals);
++  const x=d3.scaleBand().domain(APTS).range([0,iw]).padding(.3), y=d3.scaleLinear().domain([0,max*1.12]).nice(3).range([ih,0]);
++  const svg=d3.select(el).append('svg').attr('width',W).attr('height',H).attr('role','img').attr('aria-label',`Số điện tiêu thụ từng căn ${mLabel(m)}`);
++  const g=svg.append('g').attr('transform',`translate(${M.l},${M.t})`);
++  g.append('g').selectAll('line').data(y.ticks(3)).join('line').attr('x1',0).attr('x2',iw).attr('y1',d=>y(d)).attr('y2',d=>y(d)).attr('stroke',d=>d?cssv('--line-2'):cssv('--line'));
++  g.append('g').selectAll('text').data(y.ticks(3)).join('text').attr('x',-8).attr('y',d=>y(d)).attr('dy','.32em').attr('text-anchor','end').attr('font-size',11).attr('fill',ink3).text(d=>d);
++  g.append('g').selectAll('text').data(data).join('text').attr('x',d=>x(d.id)+x.bandwidth()/2).attr('y',ih+17).attr('text-anchor','middle').attr('font-size',W<520?9.5:11).attr('font-family',"var(--f-mono)").attr('fill',ink3).text(d=>d.id);
++  const dur=matchMedia('(prefers-reduced-motion:reduce)').matches?0:550, hi=avg*1.35;
++  g.append('g').selectAll('path').data(data.filter(d=>d.v!=null)).join('path').attr('fill',d=>d.v>hi?cssv('--bad'):col).attr('opacity',d=>d.v>hi?1:.88)
++    .attr('d',d=>roundTop(x(d.id),ih,x.bandwidth(),0,4)).transition().duration(dur).delay((d,i)=>i*30).attr('d',d=>roundTop(x(d.id),y(d.v),x.bandwidth(),ih-y(d.v),4));
++  const maxD=data.find(d=>d.v===max);
++  g.append('g').selectAll('text').data(data.filter(d=>d===maxD||d.v>hi)).join('text').attr('x',d=>x(d.id)+x.bandwidth()/2).attr('y',d=>y(d.v)-6).attr('text-anchor','middle').attr('font-size',11).attr('font-weight',700).attr('fill',cssv('--ink-2')).text(d=>d.v);
++  g.append('line').attr('x1',0).attr('x2',iw).attr('y1',y(avg)).attr('y2',y(avg)).attr('stroke',cssv('--ink-2')).attr('stroke-dasharray','4 4').attr('stroke-width',1.2);
++  const nHi=data.filter(d=>d.v>hi).length, cap=document.getElementById('cKwhCap');
++  if(cap)cap.innerHTML=`<span><i class="dash"></i>Trung bình ${Math.round(avg)} số/căn</span><span>Cao nhất: căn ${maxD.id} (${max} số)</span>${nHi?`<span class="warnc"><i style="background:var(--bad)"></i>${nHi} căn cao bất thường, nên kiểm tra lại số</span>`:''}`;
++  g.append('g').selectAll('rect').data(data).join('rect').attr('x',d=>x(d.id)-x.step()*x.padding()/2).attr('width',x.step()).attr('y',0).attr('height',ih+20).attr('fill','transparent').style('cursor','pointer')
++    .on('pointermove',(ev,d)=>tipShow(`<div class="th">Căn ${d.id}${d.tenant?' · '+esc(d.tenant):''}</div>${d.v==null?'<div class="tr"><span>Chưa nhập đủ số</span></div>':vizRow(d.v>hi?cssv('--bad'):col,'Đã dùng',d.v+' số')+vizRow('transparent','Tiền điện',vnd(d.money))+`<div class="tn">${d.v>hi?'Cao hơn trung bình '+Math.round((d.v/avg-1)*100)+'%. Nên kiểm tra lại số.':(d.v>=avg?'Cao hơn':'Thấp hơn')+' trung bình '+Math.abs(Math.round((d.v/avg-1)*100))+'%'}</div>`}`,ev))
++    .on('pointerleave',tipHide).on('click',(ev,d)=>{const r=document.querySelector(`[data-row="${d.id}"]`);r?.scrollIntoView({behavior:'smooth',block:'center'});r?.querySelector('[data-meter=e]:not(.prev)')?.focus({preventScroll:true})});
+ }
++let _kwhT; function refreshUtilViz(){$('#uSum').innerHTML=utilSummaryHTML();clearTimeout(_kwhT);_kwhT=setTimeout(()=>drawKwh($('#cKwh')),250)}
++let _rsT; addEventListener('resize',()=>{clearTimeout(_rsT);_rsT=setTimeout(()=>{if(state.tab==='home')drawFlow($('#cFlow'));if(state.tab==='util')drawKwh($('#cKwh'))},200)});
+ 
+ /* ---------- views: UTILITIES ---------- */
+ function meterIn(k,m,id,prev){const v=read(m,id)[k];return `<input class="meter${prev?' prev':''}" inputmode="numeric" autocomplete="off" data-meter="${k}" data-m="${m}" data-apt="${id}" value="${isNum(v)?v:''}" placeholder="${prev?'số cũ':'số mới'}" aria-label="${k==='e'?'Điện':'Nước'} ${prev?'số cũ':'số mới'} căn ${id}">`}
+@@ -916,6 +1141,7 @@ function utilSummaryHTML(){
+ function viewUtil(){
+   const s=DB.settings;
+   return `<div id="uSum">${utilSummaryHTML()}</div>
++  <div class="card" style="margin-bottom:16px"><div class="card-h" style="margin-bottom:4px"><h2>Số điện từng căn</h2></div><div class="viz-cap" id="cKwhCap"></div><div class="chart-box sm" id="cKwh"></div></div>
+   <div class="util-head"><span class="chip">${icon('bolt',14)} Điện ${fmt(s.electricPrice)}đ/số</span><span class="chip">${icon('drop',14)} Nước ${fmt(s.waterPrice)}đ/m³</span><span class="chip">${icon('bottle',14)} Lavie ${fmt(s.laviePrice)}đ/bình</span><span style="flex:1"></span><button class="btn" data-act="copy-all">${icon('copy',16)} Copy thông báo tất cả</button></div>
+   <div class="card ulist card-wrap" style="padding:8px 0">
+     <div class="uhead"><span>Căn</span><span>Điện: số cũ → số mới</span><span>Nước: số cũ → số mới</span><span>Lavie</span><span style="text-align:right">Tổng tiền</span></div>
+@@ -923,7 +1149,7 @@ function viewUtil(){
+   </div>
+   <div class="tip">${icon('cloud',18)}<div><b>Mẹo cho đỡ phải gõ:</b> chụp ảnh 13 công tơ và tờ thống kê Lavie của bảo vệ rồi gửi cho Claude, kèm câu “cập nhật điện nước ${mShort(state.month)}”. Claude đọc số, ghi vào <code>data.json</code> trên GitHub, trang này tự hiện số mới. Số cũ lấy từ kỳ trước; tháng đầu tiên thì nhập tay số cũ.</div></div>`;
+ }
+-function afterUtil(){APTS.forEach(fillUtilRow)}
++function afterUtil(){APTS.forEach(fillUtilRow);drawKwh($('#cKwh'))}
+ 
+ /* ---------- bill text ---------- */
+ function billText(id,m){
+@@ -1054,8 +1280,8 @@ function viewMoney(){
+     </div>
+     <div class="grid">
+       <div class="card"><div class="card-h"><h2>Chi theo nhóm</h2></div>
+-        <div class="donut-wrap"><div class="donut-box"><canvas id="cDonut" aria-label="Biểu đồ chi theo nhóm"></canvas><div class="donut-c"><div><b class="num">${short(S.expense)}</b><span>tổng chi</span></div></div></div>
+-        <div class="catlist">${Object.entries(CATS).map(([k,c])=>`<div><span class="sw" style="background:var(${c.v})"></span>${c.name}<b>${short(S.byCat[k]||0)}</b></div>`).join('')}</div></div>
++        <div class="donut-wrap"><div class="donut-box" id="cDonut"><div class="donut-c"><div><b class="num">${short(S.expense)}</b><span>tổng chi</span></div></div></div>
++        <div class="catlist">${Object.entries(CATS).map(([k,c])=>`<div data-cat="${k}"><span class="sw" style="background:var(${c.v})"></span>${c.name}<b>${short(S.byCat[k]||0)}</b></div>`).join('')}</div></div>
+       </div>
+       <div class="card"><div class="card-h"><h2>Khoản phát sinh</h2><span class="grow"></span><button class="btn primary sm" data-act="add-tx">${icon('plus',15)} Thêm</button></div>
+         <div class="filters">${flt.map(([k,l])=>`<button data-act="txf" data-f="${k}" aria-pressed="${state.txFilter===k}">${l}</button>`).join('')}</div>
+@@ -1065,12 +1291,7 @@ function viewMoney(){
+   </div>`;
+ }
+ function txRow(t){const c=CATS[t.cat]||CATS.khac,isIn=t.kind==='thu';return `<button class="txrow" data-act="edit-tx" data-id="${t.id}" style="width:100%;text-align:left"><span class="cat" style="background:${isIn?'var(--ok)':`var(${c.v})`}">${icon(isIn?'download':c.ic,18)}</span><div style="min-width:0"><b>${esc(t.who||c.name)}</b><small>${dLabel(t.date)} · ${isIn?'Khoản thu':c.name}${t.note?' · '+esc(t.note):''}</small></div><span class="amt num ${isIn?'in':''}">${isIn?'+':'−'}${vnd(t.amount)}</span><span></span></button>`}
+-function afterMoney(){
+-  if(!window.Chart)return; chartDefaults(); const S=monthSummary(state.month);
+-  const keys=Object.keys(CATS), data=keys.map(k=>S.byCat[k]||0), has=data.some(x=>x>0);
+-  charts.push(new Chart($('#cDonut'),{type:'doughnut',data:{labels:keys.map(k=>CATS[k].name),datasets:[{data:has?data:[1],backgroundColor:has?keys.map(k=>cssv(CATS[k].v)):[cssv('--line')],borderWidth:2,borderColor:cssv('--surface'),hoverOffset:4}]},
+-    options:{cutout:'72%',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{enabled:has,callbacks:{label:c=>` ${c.label}: ${vnd(c.raw)}`}}}}}));
+-}
++function afterMoney(){drawDonut($('#cDonut'))}
+ function txSheet(id){
+   const t=id?DB.transactions.find(x=>x.id===id):null; let kind=t?.kind||'chi';
+   const sugg=[['ngoai','Công an phường'],['ngoai','Bố mẹ gửi'],['suachua','Mua vật tư'],['suachua','Sửa điện nước'],['suachua','Mua dụng cụ']];
+@@ -1178,9 +1399,9 @@ const ACT={
+   'ask-no':()=>{const r=askResolve;askResolve=null;closeSheet();r&&r(false)},
+   paid:el=>{const id=el.dataset.apt,m=state.month,on=!read(m,id).paid;setRead(m,id,'paid',on?true:null);setRead(m,id,'paidDate',on?todayISO():null);commit();
+     if(el.dataset.close){closeSheet()}
+-    if(state.tab==='util'){$('#uSum').innerHTML=utilSummaryHTML();const b=$(`[data-row="${id}"] .paidbtn`);b.classList.toggle('on',on);b.textContent=on?'✓ Đã thu':'Chưa thu';fillUtilRow(id)}else render();
++    if(state.tab==='util'){refreshUtilViz();const b=$(`[data-row="${id}"] .paidbtn`);b.classList.toggle('on',on);b.textContent=on?'✓ Đã thu':'Chưa thu';fillUtilRow(id)}else render();
+     toast(on?`Căn ${id}: đã thu tiền điện nước`:`Căn ${id}: chuyển về chưa thu`)},
+-  lav:el=>{const id=el.dataset.apt,m=state.month,v=Math.max(0,(read(m,id).lavie||0)+ +el.dataset.d);setRead(m,id,'lavie',v||null);$(`[data-row="${id}"] [data-meter="lavie"]`).value=v||'';commit();fillUtilRow(id);$('#uSum').innerHTML=utilSummaryHTML()},
++  lav:el=>{const id=el.dataset.apt,m=state.month,v=Math.max(0,(read(m,id).lavie||0)+ +el.dataset.d);setRead(m,id,'lavie',v||null);$(`[data-row="${id}"] [data-meter="lavie"]`).value=v||'';commit();fillUtilRow(id);refreshUtilViz()},
+   'copy-bill':el=>copyText(billText(el.dataset.apt,state.month),'Đã copy — dán vào Zalo để gửi khách'),
+   'share-bill':el=>navigator.share({text:billText(el.dataset.apt,state.month)}).catch(()=>{}),
+   'copy-all':()=>{const ids=APTS.filter(id=>bill(id,state.month).entered);if(!ids.length){toast('Chưa có căn nào được nhập số');return}copyText(ids.map(id=>billText(id,state.month)).join('\n\n— — —\n\n'),`Đã copy thông báo của ${ids.length} căn`)},
+@@ -1219,7 +1440,7 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&$('#sheet').classLi
+ document.addEventListener('input',e=>{
+   const t=e.target;
+   if(t.dataset.meter){const id=t.dataset.apt,m=t.dataset.m,raw=t.value.replace(/[^\d]/g,'');if(t.value!==raw)t.value=raw;
+-    setRead(m,id,t.dataset.meter,raw===''?null:+raw);commit();fillUtilRow(id);$('#uSum').innerHTML=utilSummaryHTML();}
++    setRead(m,id,t.dataset.meter,raw===''?null:+raw);commit();fillUtilRow(id);refreshUtilViz();}
+ });
+ document.addEventListener('change',e=>{
+   const t=e.target;
+-- 
+2.43.0
+
