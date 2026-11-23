@@ -147,6 +147,14 @@ h1,h2,h3{font-family:var(--f-display);margin:0;letter-spacing:-.02em}
 .toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom));transform:translateX(-50%);background:var(--night);color:#fff;border-radius:14px;padding:10px 16px;font-size:14px;box-shadow:0 12px 30px -10px rgba(0,0,0,.5);z-index:9;animation:tin .25s both}
 @keyframes tin{from{opacity:0;transform:translate(-50%,8px)}}
 .empty{color:var(--ink-3);font-size:14px;padding:8px 0}
+.lang{display:inline-flex;flex:none;border:1px solid var(--line);background:var(--surface);border-radius:99px;padding:3px}
+.lang button{border-radius:99px;padding:5px 10px;font:700 12px/1.2 var(--f-mono);letter-spacing:.04em;color:var(--ink-3)}
+.lang button[aria-pressed="true"]{background:var(--night);color:#fff}
+.login .lang{position:absolute;top:calc(14px + env(safe-area-inset-top));right:16px;z-index:2;background:rgba(255,255,255,.07);border-color:rgba(255,255,255,.14)}
+.login .lang button{color:var(--night-ink-2)}
+.login .lang button[aria-pressed="true"]{background:var(--glow);color:#2B1D00}
+:root[data-theme="dark"] .lang button[aria-pressed="true"]{background:var(--glow);color:#2B1D00}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .lang button[aria-pressed="true"]{background:var(--glow);color:#2B1D00}}
 
 @media (max-width:860px){
   .lg{grid-template-columns:1fr;gap:22px;max-width:440px}
@@ -159,6 +167,9 @@ h1,h2,h3{font-family:var(--f-display);margin:0;letter-spacing:-.02em}
   .col{gap:14px}
   .wrap{padding-left:16px;padding-right:16px}
   .hero .tot{font-size:42px}
+  .top{flex-wrap:wrap;row-gap:10px}
+  .top .who{order:2;flex-basis:100%}
+  .top .lang{margin-left:auto}
   .card{padding:18px;border-radius:20px}
 }
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
@@ -180,14 +191,68 @@ const NF=new Intl.NumberFormat('vi-VN');
 const fmt=n=>isNum(n)?NF.format(Math.round(n)):'—';
 const vnd=n=>isNum(n)?NF.format(Math.round(n))+'đ':'—';
 const addM=(k,n)=>{let[y,m]=k.split('-').map(Number);m+=n;y+=Math.floor((m-1)/12);m=((m-1)%12+12)%12+1;return `${y}-${String(m).padStart(2,'0')}`};
-const mLabel=k=>`Tháng ${+k.slice(5)}/${k.slice(0,4)}`;
-const mShort=k=>`T${+k.slice(5)}/${k.slice(2,4)}`;
+const diffM=(a,b)=>{const[ya,ma]=a.split('-').map(Number),[yb,mb]=b.split('-').map(Number);return (ya-yb)*12+(ma-mb)};
+
+/* ---------- ngôn ngữ / language ---------- */
+const LANGK='sotoanha.lang';
+let LANG=(()=>{try{const s=localStorage.getItem(LANGK);if(s==='vi'||s==='en')return s}catch{}return /^vi/i.test(navigator.language||'vi')?'vi':'en'})();
+const EN_M=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const EN_ML=['January','February','March','April','May','June','July','August','September','October','November','December'];
+const T={
+  vi:{title:'Hóa Đơn Căn Hộ',eyebrow:'Hóa đơn căn hộ',h1:'Điện, nước<br>và tiền nhà <span>của bạn</span>',signin:'Đăng nhập',
+    sub:'Dùng số căn và mật khẩu chủ nhà đã gửi qua Zalo.',apt:'Số căn',pw:'Mật khẩu',show:'Hiện',hide:'Ẩn',remember:'Ghi nhớ trên điện thoại này',
+    go:'Xem hóa đơn',unlocking:'Đang mở khóa…',fine:'Hóa đơn được mã hóa. Chỉ người có đúng mật khẩu mới mở được, kể cả chủ trang web cũng không đọc được nếu không có mật khẩu.',
+    eNf:'Căn này chưa được mở tài khoản xem hóa đơn. Hãy liên hệ chủ nhà.',eNet:'Không tải được dữ liệu. Kiểm tra mạng rồi thử lại.',
+    eApt:'Số căn không đúng. Các căn: '+APTS.join(', '),ePw:'Nhập mật khẩu',eWrong:'Sai mật khẩu. Kiểm tra lại tin nhắn chủ nhà gửi.',
+    eMismatch:'Dữ liệu không khớp với số căn.',eChanged:'Mật khẩu đã được đổi, vui lòng đăng nhập lại.',
+    paid:'✓ Đã thanh toán',due:'Chưa thanh toán',details:m=>`Chi tiết ${m.toLowerCase()}`,elec:'Tiền điện',unitE:'số',noRead:'Chưa có số',
+    water:'Nước sinh hoạt',waterFree:'Miễn phí cho căn hộ của bạn',lavie:'Nước Lavie',bottles:n=>`${n} bình`,total:'Tổng cộng',
+    transfer:'Chuyển khoản',bank:'Ngân hàng',acct:'Số tài khoản',holder:'Chủ tài khoản',amount:'Số tiền',note:'Nội dung',copy:'Copy',
+    cpAcct:'Đã copy số tài khoản',cpAmt:'Đã copy số tiền',cpNote:'Đã copy nội dung',copied:'Đã copy',cpFail:'Không copy được',
+    rent:'Tiền nhà',rentPrice:'Giá thuê',perMonth:'/tháng',cycle:'Chu kỳ trả',cyc:n=>n===12?'Cả năm':n===1?'Hàng tháng':`${n} tháng/lần`,
+    through:(m,nx,v)=>`Đã trả đến hết ${m.toLowerCase()} · kỳ tới ${nx}: ${v}`,received:d=>`Nhận ngày ${d}`,
+    stOk:m=>`Đã trả đến hết ${m}`,stSoon:'Hết hạn cuối tháng này',stLate:n=>`Quá hạn ${n} tháng`,stNone:'Chưa ghi nhận thanh toán',
+    hist:'Lịch sử điện nước',hPaid:'Đã trả',hUnpaid:'Chưa trả',unit:'Căn',signout:'Đăng xuất',
+    billFor:m=>`Hóa đơn ${m.toLowerCase()}`,readRange:(a,b)=>`Chốt số ${a} → ${b}`,utilBill:'Hóa đơn điện nước',noBill:'Chưa có hóa đơn',
+    noBillSub:'Chủ nhà sẽ cập nhật sau ngày chốt số',foot:t=>`Cập nhật lúc ${t} · Thắc mắc vui lòng nhắn chủ nhà`,locale:'vi-VN'},
+  en:{title:'Apartment Bills',eyebrow:'Apartment bills',h1:'Your power,<br>water <span>and rent</span>',signin:'Sign in',
+    sub:'Use your unit number and the password your landlord sent you on Zalo.',apt:'Unit number',pw:'Password',show:'Show',hide:'Hide',remember:'Remember me on this phone',
+    go:'View my bill',unlocking:'Unlocking…',fine:'Your bill is encrypted. Only the right password can open it, so even the site owner cannot read it without one.',
+    eNf:'This unit does not have bill access yet. Please contact your landlord.',eNet:'Could not load your bill. Check your connection and try again.',
+    eApt:'Unit not found. Units: '+APTS.join(', '),ePw:'Enter your password',eWrong:'Wrong password. Check the message your landlord sent.',
+    eMismatch:'This data does not match the unit number.',eChanged:'Your password was changed. Please sign in again.',
+    paid:'✓ Paid',due:'Not paid yet',details:m=>`Details for ${m}`,elec:'Electricity',unitE:'kWh',noRead:'No reading yet',
+    water:'Tap water',waterFree:'Free for your unit',lavie:'Lavie drinking water',bottles:n=>`${n} ${n===1?'bottle':'bottles'}`,total:'Total',
+    transfer:'Bank transfer',bank:'Bank',acct:'Account number',holder:'Account holder',amount:'Amount',note:'Transfer note',copy:'Copy',
+    cpAcct:'Account number copied',cpAmt:'Amount copied',cpNote:'Transfer note copied',copied:'Copied',cpFail:'Could not copy',
+    rent:'Rent',rentPrice:'Monthly rent',perMonth:'/month',cycle:'Payment cycle',cyc:n=>n===12?'Yearly':n===1?'Monthly':`Every ${n} months`,
+    through:(m,nx,v)=>`Paid through ${m} · next payment (${nx}): ${v}`,received:d=>`Received ${d}`,
+    stOk:m=>`Paid through ${m}`,stSoon:'Due at the end of this month',stLate:n=>`Overdue ${n} ${n===1?'month':'months'}`,stNone:'No payment recorded',
+    hist:'Utility history',hPaid:'Paid',hUnpaid:'Unpaid',unit:'Unit',signout:'Sign out',
+    billFor:m=>`Bill for ${m}`,readRange:(a,b)=>`Meter read ${a} → ${b}`,utilBill:'Utility bill',noBill:'No bill yet',
+    noBillSub:'Your landlord will update it after the meter reading day',foot:t=>`Updated ${t} · Questions? Message your landlord`,locale:'en-GB'}
+};
+const t=(k,...a)=>{const v=T[LANG][k]??T.vi[k];return typeof v==='function'?v(...a):v};
+const mLabel=k=>LANG==='en'?`${EN_ML[+k.slice(5)-1]} ${k.slice(0,4)}`:`Tháng ${+k.slice(5)}/${k.slice(0,4)}`;
+const mShort=k=>LANG==='en'?`${EN_M[+k.slice(5)-1]} ${k.slice(2,4)}`:`T${+k.slice(5)}/${k.slice(2,4)}`;
+const mTiny=k=>LANG==='en'?EN_M[+k.slice(5)-1]:`T${+k.slice(5)}`;
+const noteMonth=k=>`T${+k.slice(5)}-${k.slice(2,4)}`; /* nội dung chuyển khoản luôn giữ dạng tiếng Việt để chủ nhà đối chiếu */
 const dLabel=iso=>iso?`${iso.slice(8,10)}/${iso.slice(5,7)}/${iso.slice(0,4)}`:'';
+const langHTML=()=>`<div class="lang" role="group" aria-label="Ngôn ngữ / Language"><button type="button" data-lang="vi" aria-pressed="${LANG==='vi'}" lang="vi">VI</button><button type="button" data-lang="en" aria-pressed="${LANG==='en'}" lang="en">EN</button></div>`;
+function applyLang(){document.documentElement.lang=LANG;document.title=t('title')}
+function bindLang(){document.querySelectorAll('[data-lang]').forEach(b=>b.onclick=()=>setLang(b.dataset.lang))}
+function setLang(l){
+  if(l===LANG)return; LANG=l; try{localStorage.setItem(LANGK,l)}catch{}
+  applyLang();
+  if(S.data){renderBill();return}
+  const a=$('#iApt')?.value||'', p=$('#iPw')?.value||'', r=$('#iRem')?.checked;
+  renderLogin(a,S.errKey); if(p){$('#iPw').value=p} if(r===false)$('#iRem').checked=false;
+}
 const lsGet=()=>{try{return JSON.parse(localStorage.getItem(LSK))}catch{return null}};
 const lsSet=v=>{try{localStorage.setItem(LSK,JSON.stringify(v))}catch{}};
 const lsDel=()=>{try{localStorage.removeItem(LSK)}catch{}};
 function toast(t){const d=document.createElement('div');d.className='toast';d.textContent=t;document.body.appendChild(d);setTimeout(()=>d.remove(),2200)}
-async function copy(t,msg){try{await navigator.clipboard.writeText(t);toast(msg||'Đã copy')}catch{toast('Không copy được')}}
+async function copy(s,msg){try{await navigator.clipboard.writeText(s);toast(msg||t('copied'))}catch{toast(t('cpFail'))}}
 const IC={bolt:'<path d="M13 3 5 13.5h6L10 21l8-10.5h-6z"/>',drop:'<path d="M12 3.5s6 6.4 6 11a6 6 0 0 1-12 0c0-4.6 6-11 6-11z"/>',bottle:'<path d="M10 2.5h4M10.5 2.5v3L8 9v11a1.5 1.5 0 0 0 1.5 1.5h5A1.5 1.5 0 0 0 16 20V9l-2.5-3.5v-3"/><path d="M8 13h8"/>',lock:'<rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>'};
 const icon=(n,s=18)=>`<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${IC[n]}</svg>`;
 
@@ -205,52 +270,55 @@ async function decryptVault(v,key){
 }
 async function fetchVault(apt){
   const r=await fetch(`vault/${apt}.json?t=${Date.now()}`,{cache:'no-store'});
-  if(r.status===404)throw Object.assign(new Error('Căn này chưa được mở tài khoản xem hóa đơn. Hãy liên hệ chủ nhà.'),{code:'nf'});
-  if(!r.ok)throw new Error('Không tải được dữ liệu. Kiểm tra mạng rồi thử lại.');
+  if(r.status===404)throw Object.assign(new Error('nf'),{code:'nf',key:'eNf'});
+  if(!r.ok)throw Object.assign(new Error('net'),{key:'eNet'});
   return r.json();
 }
 
 /* ---------- state ---------- */
-const S={apt:'',data:null,sel:null};
+const S={apt:'',data:null,sel:null,errKey:''};
 
 /* ---------- login ---------- */
 function miniHTML(){
   return `<div class="mini" aria-hidden="true"><div class="ant"></div>${FLOORS.map(r=>{const f=r[0][0],g=r[0]==='100';return `<div class="mf f${f}" style="--n:${g?2:r.length}">${r.map(id=>`<div class="mw" data-w="${id}">${id}</div>`).join('')}${g?'<div class="mw lobby"></div>':''}</div>`}).join('')}<div class="mground"></div></div>`;
 }
-function renderLogin(prefill,err){
+function renderLogin(prefill,errKey){
   document.documentElement.style.background='#120F20';
-  $('#app').innerHTML=`<div class="login"><div class="lg">
-    <div class="lg-left"><div class="eyebrow">Hóa đơn căn hộ</div><h1>Điện, nước<br>và tiền nhà <span>của bạn</span></h1>${miniHTML()}</div>
+  S.errKey=errKey||'';
+  $('#app').innerHTML=`<div class="login">${langHTML()}<div class="lg">
+    <div class="lg-left"><div class="eyebrow">${t('eyebrow')}</div><h1>${t('h1')}</h1>${miniHTML()}</div>
     <form class="lg-card" id="fLogin" autocomplete="on">
-      <h2>Đăng nhập</h2><div class="sub">Dùng số căn và mật khẩu chủ nhà đã gửi qua Zalo.</div>
-      <div class="field"><label for="iApt">Số căn</label><input class="in apt" id="iApt" name="username" inputmode="numeric" maxlength="3" autocomplete="username" placeholder="301" value="${esc(prefill||'')}" required></div>
-      <div class="field"><label for="iPw">Mật khẩu</label><div class="pwrap"><input class="in pw" id="iPw" name="password" type="password" autocomplete="current-password" autocapitalize="off" spellcheck="false" placeholder="xxxx-xxxx" required><button type="button" id="bShow">Hiện</button></div></div>
-      <label class="remember"><input type="checkbox" id="iRem" checked> Ghi nhớ trên điện thoại này</label>
-      <button class="btn" type="submit" id="bGo">Xem hóa đơn</button>
-      <div class="err" id="err" role="alert">${esc(err||'')}</div>
-      <div class="fine">${icon('lock',16)}<span>Hóa đơn được mã hóa. Chỉ người có đúng mật khẩu mới mở được, kể cả chủ trang web cũng không đọc được nếu không có mật khẩu.</span></div>
+      <h2>${t('signin')}</h2><div class="sub">${t('sub')}</div>
+      <div class="field"><label for="iApt">${t('apt')}</label><input class="in apt" id="iApt" name="username" inputmode="numeric" maxlength="3" autocomplete="username" placeholder="301" value="${esc(prefill||'')}" required></div>
+      <div class="field"><label for="iPw">${t('pw')}</label><div class="pwrap"><input class="in pw" id="iPw" name="password" type="password" autocomplete="current-password" autocapitalize="off" spellcheck="false" placeholder="xxxx-xxxx" required><button type="button" id="bShow">${t('show')}</button></div></div>
+      <label class="remember"><input type="checkbox" id="iRem" checked> ${t('remember')}</label>
+      <button class="btn" type="submit" id="bGo">${t('go')}</button>
+      <div class="err" id="err" role="alert">${S.errKey?esc(t(S.errKey)):''}</div>
+      <div class="fine">${icon('lock',16)}<span>${t('fine')}</span></div>
     </form></div></div>`;
+  const setErr=k=>{S.errKey=k||'';$('#err').textContent=k?t(k):''};
   const light=()=>{const v=$('#iApt').value.trim();document.querySelectorAll('.mw[data-w]').forEach(w=>w.classList.toggle('on',w.dataset.w===v))};
-  $('#iApt').addEventListener('input',e=>{e.target.value=e.target.value.replace(/\D/g,'');light();$('#err').textContent=''});
-  $('#iPw').addEventListener('input',()=>$('#err').textContent='');
-  $('#bShow').addEventListener('click',()=>{const p=$('#iPw');p.type=p.type==='password'?'text':'password';$('#bShow').textContent=p.type==='password'?'Hiện':'Ẩn'});
-  $('#fLogin').addEventListener('submit',onLogin);
+  $('#iApt').addEventListener('input',e=>{e.target.value=e.target.value.replace(/\D/g,'');light();setErr('')});
+  $('#iPw').addEventListener('input',()=>setErr(''));
+  $('#bShow').addEventListener('click',()=>{const p=$('#iPw');p.type=p.type==='password'?'text':'password';$('#bShow').textContent=p.type==='password'?t('show'):t('hide')});
+  $('#fLogin').addEventListener('submit',e=>onLogin(e,setErr));
+  bindLang();
   light(); (prefill?$('#iPw'):$('#iApt')).focus({preventScroll:true});
 }
-async function onLogin(e){
+async function onLogin(e,setErr){
   e.preventDefault();
-  const apt=$('#iApt').value.trim(), pw=$('#iPw').value, btn=$('#bGo'), err=$('#err');
-  if(!APTS.includes(apt)){err.textContent='Số căn không đúng. Các căn: '+APTS.join(', ');return}
-  if(!normPass(pw)){err.textContent='Nhập mật khẩu';return}
-  btn.disabled=true;btn.innerHTML='<span class="spin"></span> Đang mở khóa…';err.textContent='';
+  const apt=$('#iApt').value.trim(), pw=$('#iPw').value, btn=$('#bGo');
+  if(!APTS.includes(apt)){setErr('eApt');return}
+  if(!normPass(pw)){setErr('ePw');return}
+  btn.disabled=true;btn.innerHTML=`<span class="spin"></span> ${t('unlocking')}`;setErr('');
   try{
     const v=await fetchVault(apt);
     const key=await deriveKey(pw,v.salt,v.iter);
-    let data; try{data=await decryptVault(v,key)}catch{throw new Error('Sai mật khẩu. Kiểm tra lại tin nhắn chủ nhà gửi.')}
-    if(data.apt!==apt)throw new Error('Dữ liệu không khớp với số căn.');
+    let data; try{data=await decryptVault(v,key)}catch{throw Object.assign(new Error('wrong'),{key:'eWrong'})}
+    if(data.apt!==apt)throw Object.assign(new Error('mismatch'),{key:'eMismatch'});
     if($('#iRem').checked)lsSet({apt,salt:v.salt,key:toB64(await crypto.subtle.exportKey('raw',key))}); else lsDel();
-    S.apt=apt;S.data=data;S.sel=null;history.replaceState(null,'','#'+apt);renderBill();
-  }catch(x){err.textContent=x.message;btn.disabled=false;btn.textContent='Xem hóa đơn'}
+    S.apt=apt;S.data=data;S.sel=null;S.errKey='';history.replaceState(null,'','#'+apt);renderBill();
+  }catch(x){setErr(x.key||'eNet');btn.disabled=false;btn.textContent=t('go')}
 }
 
 /* ---------- bill view ---------- */
@@ -258,46 +326,55 @@ function renderBill(){
   document.documentElement.style.background='';
   const d=S.data, bills=d.bills||[], sel=S.sel||(bills.length?bills[bills.length-1].m:null), b=bills.find(x=>x.m===sel);
   S.sel=sel;
-  const st=b?(b.paid?'<span class="chip ok">✓ Đã thanh toán</span>':'<span class="chip due">Chưa thanh toán</span>'):'';
-  const line=(c,ic,t,sub,v)=>`<div class="line"><span class="ic" style="background:${c}">${icon(ic)}</span><div><b>${t}</b><small>${sub}</small></div><span class="v">${v}</span></div>`;
+  const st=b?(b.paid?`<span class="chip ok">${t('paid')}</span>`:`<span class="chip due">${t('due')}</span>`):'';
+  const line=(c,ic,ti,sub,v)=>`<div class="line"><span class="ic" style="background:${c}">${icon(ic)}</span><div><b>${ti}</b><small>${sub}</small></div><span class="v">${v}</span></div>`;
   const P=d.prices||{};
-  const receipt=b?`<div class="card"><h2>Chi tiết ${mLabel(b.m).toLowerCase()}</h2>
-    ${line('var(--elec)','bolt','Tiền điện',isNum(b.eu)?`${fmt(b.pe)} → ${fmt(b.ce)} · ${fmt(b.eu)} số × ${fmt(P.e)}đ`:'Chưa có số',vnd(b.em))}
-    ${line('var(--water)','drop','Nước sinh hoạt',d.waterFree?'Miễn phí cho căn hộ của bạn':(isNum(b.wu)?`${fmt(b.pw)} → ${fmt(b.cw)} · ${fmt(b.wu)} m³ × ${fmt(P.w)}đ`:'Chưa có số'),d.waterFree?'0đ':vnd(b.wm))}
-    ${line('var(--lavie)','bottle','Nước Lavie',`${b.ln||0} bình × ${fmt(P.l)}đ`,vnd(b.lm))}
-    <div class="sum"><span style="color:var(--ink-3)">Tổng cộng</span><b class="num">${vnd(b.total)}</b></div></div>`:'';
+  const receipt=b?`<div class="card"><h2>${t('details',mLabel(b.m))}</h2>
+    ${line('var(--elec)','bolt',t('elec'),isNum(b.eu)?`${fmt(b.pe)} → ${fmt(b.ce)} · ${fmt(b.eu)} ${t('unitE')} × ${fmt(P.e)}đ`:t('noRead'),vnd(b.em))}
+    ${line('var(--water)','drop',t('water'),d.waterFree?t('waterFree'):(isNum(b.wu)?`${fmt(b.pw)} → ${fmt(b.cw)} · ${fmt(b.wu)} m³ × ${fmt(P.w)}đ`:t('noRead')),d.waterFree?'0đ':vnd(b.wm))}
+    ${line('var(--lavie)','bottle',t('lavie'),`${t('bottles',b.ln||0)} × ${fmt(P.l)}đ`,vnd(b.lm))}
+    <div class="sum"><span style="color:var(--ink-3)">${t('total')}</span><b class="num">${vnd(b.total)}</b></div></div>`:'';
   const pay=d.pay||{}, hasBank=pay.account&&pay.bank;
-  const note=b?`${d.apt} ${mShort(b.m).replace('/','-')}`:d.apt;
-  const payHTML=(b&&!b.paid&&hasBank)?`<div class="card"><h2>Chuyển khoản</h2>
-    <div class="kv"><span>Ngân hàng</span><b>${esc(pay.bank)}</b><span></span></div>
-    <div class="kv"><span>Số tài khoản</span><b class="mono">${esc(pay.account)}</b><button class="cp" data-cp="${esc(pay.account)}" data-msg="Đã copy số tài khoản">Copy</button></div>
-    ${pay.holder?`<div class="kv"><span>Chủ tài khoản</span><b>${esc(pay.holder)}</b><span></span></div>`:''}
-    <div class="kv"><span>Số tiền</span><b class="mono">${fmt(b.total)}</b><button class="cp" data-cp="${Math.round(b.total)}" data-msg="Đã copy số tiền">Copy</button></div>
-    <div class="kv"><span>Nội dung</span><b class="mono">${esc(note)}</b><button class="cp" data-cp="${esc(note)}" data-msg="Đã copy nội dung">Copy</button></div></div>`:'';
+  const note=b?`${d.apt} ${noteMonth(b.m)}`:d.apt;
+  const payHTML=(b&&!b.paid&&hasBank)?`<div class="card"><h2>${t('transfer')}</h2>
+    <div class="kv"><span>${t('bank')}</span><b>${esc(pay.bank)}</b><span></span></div>
+    <div class="kv"><span>${t('acct')}</span><b class="mono">${esc(pay.account)}</b><button class="cp" data-cp="${esc(pay.account)}" data-msg="${esc(t('cpAcct'))}">${t('copy')}</button></div>
+    ${pay.holder?`<div class="kv"><span>${t('holder')}</span><b>${esc(pay.holder)}</b><span></span></div>`:''}
+    <div class="kv"><span>${t('amount')}</span><b class="mono">${fmt(b.total)}</b><button class="cp" data-cp="${Math.round(b.total)}" data-msg="${esc(t('cpAmt'))}">${t('copy')}</button></div>
+    <div class="kv"><span>${t('note')}</span><b class="mono">${esc(note)}</b><button class="cp" data-cp="${esc(note)}" data-msg="${esc(t('cpNote'))}">${t('copy')}</button></div></div>`:'';
   const r=d.rent;
+  const rentLabel=r=>{
+    if(r.st==='ok'&&r.through)return t('stOk',mShort(r.through));
+    if(r.st==='soon')return t('stSoon');
+    if(r.st==='late'&&r.through){const cur=(d.generatedAt||new Date().toISOString()).slice(0,7);return t('stLate',Math.max(1,diffM(cur,r.through)))}
+    if(r.st==='none')return t('stNone');
+    return r.label||'';
+  };
   const rentHTML=r&&r.rent?(()=>{const chip={ok:'lok',soon:'lwarn',late:'lbad',none:'lbad'}[r.st]||'';const pct=r.through?Math.max(0,Math.min(100,Math.round(r.ahead/(r.cycle||1)*100))):0;
-    return `<div class="card"><div style="display:flex;align-items:center;gap:10px;margin-bottom:6px"><h2 style="margin:0;flex:1">Tiền nhà</h2><span class="chip ${chip}">${esc(r.label)}</span></div>
-      <div class="kv"><span>Giá thuê</span><b>${vnd(r.rent)}/tháng</b><span></span></div>
-      <div class="kv"><span>Chu kỳ trả</span><b>${r.cycle===12?'Cả năm':r.cycle===1?'Hàng tháng':r.cycle+' tháng/lần'}</b><span></span></div>
-      ${r.through?`<div class="rbar"><i style="width:${pct}%"></i></div><div style="font-size:13px;color:var(--ink-3)">Đã trả đến hết ${mLabel(r.through).toLowerCase()} · kỳ tới ${mShort(addM(r.through,1))}: ${vnd(r.rent*r.cycle)}</div>`:''}
-      ${(r.payments||[]).length?`<div style="margin-top:12px">${r.payments.map(p=>`<div class="hrow"><div><b>${p.months===1?mShort(p.fromMonth):`${mShort(p.fromMonth)} → ${mShort(addM(p.fromMonth,p.months-1))}`}</b><div style="font-size:12.5px;color:var(--ink-3)">Nhận ngày ${dLabel(p.date)}</div></div><span class="v">${vnd(p.amount)}</span><span></span></div>`).join('')}</div>`:''}
+    return `<div class="card"><div style="display:flex;align-items:center;gap:10px;margin-bottom:6px"><h2 style="margin:0;flex:1">${t('rent')}</h2><span class="chip ${chip}">${esc(rentLabel(r))}</span></div>
+      <div class="kv"><span>${t('rentPrice')}</span><b>${vnd(r.rent)}${t('perMonth')}</b><span></span></div>
+      <div class="kv"><span>${t('cycle')}</span><b>${t('cyc',r.cycle)}</b><span></span></div>
+      ${r.through?`<div class="rbar"><i style="width:${pct}%"></i></div><div style="font-size:13px;color:var(--ink-3)">${t('through',mLabel(r.through),mShort(addM(r.through,1)),vnd(r.rent*r.cycle))}</div>`:''}
+      ${(r.payments||[]).length?`<div style="margin-top:12px">${r.payments.map(p=>`<div class="hrow"><div><b>${p.months===1?mShort(p.fromMonth):`${mShort(p.fromMonth)} → ${mShort(addM(p.fromMonth,p.months-1))}`}</b><div style="font-size:12.5px;color:var(--ink-3)">${t('received',dLabel(p.date))}</div></div><span class="v">${vnd(p.amount)}</span><span></span></div>`).join('')}</div>`:''}
     </div>`})():'';
   const mx=Math.max(1,...bills.map(x=>x.total||0));
-  const histHTML=bills.length?`<div class="card"><h2>Lịch sử điện nước</h2>
-    <div class="bars">${bills.slice(-12).map(x=>`<button data-m="${x.m}" aria-pressed="${x.m===sel}" aria-label="${mLabel(x.m)}: ${vnd(x.total)}"><i style="height:${Math.max(4,(x.total||0)/mx*84)}px"></i>${mShort(x.m).slice(0,-3)}</button>`).join('')}</div>
-    <div style="margin-top:8px">${[...bills].reverse().slice(0,12).map(x=>`<button class="hrow" data-m="${x.m}"><b>${mLabel(x.m)}</b><span class="v">${vnd(x.total)}</span>${x.paid?'<span class="chip lok">Đã trả</span>':'<span class="chip lwarn">Chưa trả</span>'}</button>`).join('')}</div></div>`:'';
+  const histHTML=bills.length?`<div class="card"><h2>${t('hist')}</h2>
+    <div class="bars">${bills.slice(-12).map(x=>`<button data-m="${x.m}" aria-pressed="${x.m===sel}" aria-label="${mLabel(x.m)}: ${vnd(x.total)}"><i style="height:${Math.max(4,(x.total||0)/mx*84)}px"></i>${mTiny(x.m)}</button>`).join('')}</div>
+    <div style="margin-top:8px">${[...bills].reverse().slice(0,12).map(x=>`<button class="hrow" data-m="${x.m}"><b>${mLabel(x.m)}</b><span class="v">${vnd(x.total)}</span>${x.paid?`<span class="chip lok">${t('hPaid')}</span>`:`<span class="chip lwarn">${t('hUnpaid')}</span>`}</button>`).join('')}</div></div>`:'';
+  const rd=d.readingDay||20;
   $('#app').innerHTML=`<div class="wrap">
-    <div class="top"><div class="who"><small>${esc(d.building||'')}</small><b>Căn ${esc(d.apt)}${d.tenant?` · ${esc(d.tenant)}`:''}</b></div><button class="ghost" id="bOut">Đăng xuất</button></div>
+    <div class="top"><div class="who"><small>${esc(d.building||'')}</small><b>${t('unit')} ${esc(d.apt)}${d.tenant?` · ${esc(d.tenant)}`:''}</b></div>${langHTML()}<button class="ghost" id="bOut">${t('signout')}</button></div>
     <div class="cols"><div class="col">
-      <section class="hero">${b?`<div class="ml">Hóa đơn ${mLabel(b.m).toLowerCase()}</div>
+      <section class="hero">${b?`<div class="ml">${t('billFor',mLabel(b.m))}</div>
         <div class="tot num">${fmt(b.total)}<small>đ</small></div>
-        <div class="row">${st}<span class="chip dim">Chốt số ${d.readingDay||20}/${+addM(b.m,-1).slice(5)} → ${d.readingDay||20}/${+b.m.slice(5)}</span></div>
+        <div class="row">${st}<span class="chip dim">${t('readRange',`${rd}/${+addM(b.m,-1).slice(5)}`,`${rd}/${+b.m.slice(5)}`)}</span></div>
         <div class="months">${[...bills].reverse().slice(0,12).map(x=>`<button data-m="${x.m}" aria-pressed="${x.m===sel}">${mShort(x.m)}</button>`).join('')}</div>`
-        :`<div class="ml">Hóa đơn điện nước</div><div class="tot" style="font-size:28px">Chưa có hóa đơn</div><div class="row"><span class="chip dim">Chủ nhà sẽ cập nhật sau ngày chốt số</span></div>`}</section>
+        :`<div class="ml">${t('utilBill')}</div><div class="tot" style="font-size:28px">${t('noBill')}</div><div class="row"><span class="chip dim">${t('noBillSub')}</span></div>`}</section>
       ${receipt}${payHTML}
     </div><div class="col">${rentHTML}${histHTML}</div></div>
-    <div class="foot">Cập nhật lúc ${d.generatedAt?new Date(d.generatedAt).toLocaleString('vi-VN'):'—'} · Thắc mắc vui lòng nhắn chủ nhà</div>
+    <div class="foot">${t('foot',d.generatedAt?new Date(d.generatedAt).toLocaleString(t('locale')):'—')}</div>
   </div>`;
+  bindLang();
   $('#bOut').onclick=()=>{lsDel();S.data=null;renderLogin(S.apt)};
   document.querySelectorAll('[data-m]').forEach(el=>el.onclick=()=>{S.sel=el.dataset.m;renderBill();window.scrollTo({top:0,behavior:'smooth'})});
   document.querySelectorAll('[data-cp]').forEach(el=>el.onclick=()=>copy(el.dataset.cp,el.dataset.msg));
@@ -305,15 +382,16 @@ function renderBill(){
 
 /* ---------- boot ---------- */
 (async function(){
+  applyLang();
   const h=decodeURIComponent(location.hash.slice(1)).replace(/\D/g,'').slice(0,3);
   const saved=lsGet();
   if(saved&&(!h||h===saved.apt)){
     try{
       const v=await fetchVault(saved.apt);
-      if(v.salt!==saved.salt)throw new Error('Mật khẩu đã được đổi, vui lòng đăng nhập lại.');
+      if(v.salt!==saved.salt)throw Object.assign(new Error('changed'),{key:'eChanged'});
       const key=await crypto.subtle.importKey('raw',fromB64(saved.key),{name:'AES-GCM'},false,['decrypt']);
       S.apt=saved.apt;S.data=await decryptVault(v,key);renderBill();return;
-    }catch(x){lsDel();renderLogin(saved.apt,x.code==='nf'?x.message:(x.message.includes('Mật khẩu')?x.message:''));return}
+    }catch(x){lsDel();renderLogin(saved.apt,(x.key==='eNf'||x.key==='eChanged')?x.key:'');return}
   }
   renderLogin(APTS.includes(h)?h:'');
 })();
