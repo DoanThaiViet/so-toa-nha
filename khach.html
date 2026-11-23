@@ -1,0 +1,322 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1D1B2C">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Hóa đơn">
+<meta name="robots" content="noindex">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon.svg">
+<title>Hóa Đơn Căn Hộ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Be+Vietnam+Pro:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap&subset=vietnamese" rel="stylesheet">
+<style>
+:root{
+  --paper:#EFF0EC; --surface:#FFFFFF; --surface-2:#F6F7F3; --ink:#191B22; --ink-2:#4F5462; --ink-3:#8B909B;
+  --line:#E1E3DC; --line-2:#ECEDE8;
+  --night:#1D1B2C; --night-2:#2A2740; --night-3:#3A3656; --night-ink:#EDEAF8; --night-ink-2:#A7A2C3;
+  --glow:#FFC24B; --glow-2:#F5A623;
+  --elec:#E09B00; --water:#1F74D6; --lavie:#0FA592;
+  --ok:#2A9D68; --ok-soft:rgba(42,157,104,.12); --warn:#D98200; --warn-soft:rgba(217,130,0,.13); --bad:#D4433A; --bad-soft:rgba(212,67,58,.11);
+  --shadow:0 1px 2px rgba(20,20,40,.04),0 10px 30px -16px rgba(20,20,40,.18);
+  --f-display:'Bricolage Grotesque',ui-sans-serif,system-ui,sans-serif;
+  --f-body:'Be Vietnam Pro',ui-sans-serif,system-ui,sans-serif;
+  --f-mono:'JetBrains Mono',ui-monospace,Consolas,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){ :root:not([data-theme="light"]){
+  --paper:#111118; --surface:#1A1A24; --surface-2:#21212D; --ink:#ECEDF2; --ink-2:#B3B6C2; --ink-3:#7D8090;
+  --line:#2C2C3A; --line-2:#252531; --night:#17152A; --night-2:#24213A; --night-3:#35314F;
+  --ok-soft:rgba(42,157,104,.2); --warn-soft:rgba(217,130,0,.2); --bad-soft:rgba(212,67,58,.2);
+  --shadow:0 12px 30px -18px rgba(0,0,0,.6); color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --paper:#111118; --surface:#1A1A24; --surface-2:#21212D; --ink:#ECEDF2; --ink-2:#B3B6C2; --ink-3:#7D8090;
+  --line:#2C2C3A; --line-2:#252531; --night:#17152A; --night-2:#24213A; --night-3:#35314F;
+  --ok-soft:rgba(42,157,104,.2); --warn-soft:rgba(217,130,0,.2); --bad-soft:rgba(212,67,58,.2);
+  --shadow:0 12px 30px -18px rgba(0,0,0,.6); color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--paper);color:var(--ink);font:15px/1.5 var(--f-body);-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent}
+button,input{font:inherit;color:inherit}
+button{cursor:pointer;border:0;background:none;padding:0}
+:focus-visible{outline:2px solid var(--glow-2);outline-offset:2px;border-radius:8px}
+h1,h2,h3{font-family:var(--f-display);margin:0;letter-spacing:-.02em}
+.num{font-variant-numeric:tabular-nums}
+
+/* ---------- Login ---------- */
+.login{min-height:100vh;min-height:100dvh;background:linear-gradient(180deg,#120F20 0%,#1D1932 45%,#2D2546 100%);color:var(--night-ink);position:relative;overflow:hidden;display:grid;place-items:center;padding:calc(24px + env(safe-area-inset-top)) 16px calc(24px + env(safe-area-inset-bottom))}
+.login::before{content:"";position:absolute;inset:0;pointer-events:none;background:
+  radial-gradient(1.3px 1.3px at 10% 12%,#fff9 50%,transparent),radial-gradient(1px 1px at 24% 34%,#fff6 50%,transparent),
+  radial-gradient(1.4px 1.4px at 80% 9%,#fffa 50%,transparent),radial-gradient(1px 1px at 92% 30%,#fff5 50%,transparent),
+  radial-gradient(1px 1px at 62% 20%,#fff6 50%,transparent),radial-gradient(1.2px 1.2px at 44% 6%,#fff7 50%,transparent),
+  radial-gradient(1px 1px at 70% 44%,#fff4 50%,transparent),radial-gradient(1.2px 1.2px at 6% 52%,#fff5 50%,transparent),
+  radial-gradient(50% 30% at 84% 4%,rgba(255,194,75,.12),transparent)}
+.lg{position:relative;width:100%;max-width:980px;display:grid;grid-template-columns:1fr 400px;gap:56px;align-items:center}
+.lg-left .eyebrow{font-size:13px;color:var(--glow);font-weight:600;letter-spacing:.02em}
+.lg-left h1{font-size:46px;font-weight:800;line-height:1.02;margin:8px 0 26px}
+.lg-left h1 span{color:var(--glow)}
+.mini{width:100%;max-width:300px}
+.mini .ant{width:2px;height:16px;background:var(--night-3);margin:0 auto}
+.mini .ant::before{content:"";display:block;width:5px;height:5px;border-radius:50%;background:#FF5A4E;margin:-3px 0 0 -1.5px;box-shadow:0 0 8px #FF5A4E}
+.mf{display:grid;grid-template-columns:repeat(var(--n),1fr);gap:5px;padding:5px;background:#3B355A;border-radius:5px;margin-bottom:5px}
+.mf.f8{margin-left:24%;margin-right:24%}.mf.f7{margin-left:12%;margin-right:12%}
+.mw{height:26px;border-radius:3px;background:#1E1A33;font:700 10px/26px var(--f-mono);text-align:center;color:#5F5A80;transition:background .35s,color .35s,box-shadow .35s}
+.mw.on{background:linear-gradient(180deg,#FFE09A,var(--glow) 50%,var(--glow-2));color:#3A2600;box-shadow:0 0 22px rgba(255,194,75,.65)}
+.mw.lobby{background:linear-gradient(180deg,#5A4A7A,#3A3156)}
+.mground{height:10px;background:#0E0C17;border-top:2px solid #4A4268;margin:0 -20px}
+.lg-card{background:var(--surface);color:var(--ink);border-radius:26px;padding:26px;box-shadow:0 30px 80px -24px rgba(0,0,0,.6)}
+.lg-card h2{font-size:24px;margin-bottom:4px}
+.lg-card .sub{color:var(--ink-3);font-size:13.5px;margin-bottom:18px}
+.field{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
+.field label{font-size:12.5px;font-weight:600;color:var(--ink-2)}
+.in{width:100%;border:1px solid var(--line);background:var(--surface-2);border-radius:13px;padding:13px 14px;font-size:16px;min-width:0}
+.in:focus{outline:2px solid var(--glow-2);outline-offset:0;background:var(--surface)}
+.in.apt{font:700 22px/1 var(--f-mono);letter-spacing:.12em}
+.in.pw{font-family:var(--f-mono);letter-spacing:.06em}
+.pwrap{position:relative}
+.pwrap button{position:absolute;right:8px;top:50%;transform:translateY(-50%);font-size:12.5px;font-weight:600;color:var(--ink-3);padding:6px 8px;border-radius:8px}
+.remember{display:flex;gap:10px;align-items:center;font-size:14px;color:var(--ink-2);margin:2px 0 18px}
+.remember input{width:20px;height:20px;accent-color:var(--glow-2)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border-radius:13px;padding:13px 16px;font-weight:700;font-size:15px;width:100%;background:var(--night);color:#fff;transition:transform .08s,opacity .2s}
+.btn:active{transform:scale(.98)}
+.btn:disabled{opacity:.6}
+.err{color:var(--bad);font-size:13.5px;font-weight:600;min-height:20px;margin-top:10px}
+.fine{font-size:12.5px;color:var(--ink-3);margin-top:14px;display:flex;gap:8px;align-items:flex-start}
+.spin{width:16px;height:16px;border-radius:50%;border:2px solid rgba(255,255,255,.35);border-top-color:#fff;animation:sp .8s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+
+/* ---------- Bill view ---------- */
+.wrap{max-width:1040px;margin:0 auto;padding:calc(16px + env(safe-area-inset-top)) 20px calc(40px + env(safe-area-inset-bottom))}
+.top{display:flex;align-items:center;gap:12px;margin-bottom:18px}
+.top .who{flex:1;min-width:0}
+.top small{display:block;color:var(--ink-3);font-size:13px;font-weight:500}
+.top b{font-family:var(--f-display);font-size:28px;font-weight:800;letter-spacing:-.02em;line-height:1.1}
+.ghost{border:1px solid var(--line);background:var(--surface);border-radius:99px;padding:8px 14px;font-weight:600;font-size:13.5px;color:var(--ink-2)}
+.cols{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:20px;align-items:start}
+.col{display:grid;gap:20px;min-width:0}
+.hero{background:linear-gradient(160deg,#1B1830,#2D2546);color:var(--night-ink);border-radius:26px;padding:22px;position:relative;overflow:hidden}
+.hero::after{content:"";position:absolute;right:-40px;top:-60px;width:220px;height:220px;border-radius:50%;background:radial-gradient(closest-side,rgba(255,194,75,.22),transparent)}
+.hero .ml{font-size:13.5px;color:var(--night-ink-2);font-weight:500}
+.hero .tot{font-family:var(--f-display);font-weight:800;font-size:48px;letter-spacing:-.04em;line-height:1.05;margin:6px 0 10px}
+.hero .tot small{font-size:22px;color:var(--night-ink-2);margin-left:2px}
+.hero .row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;position:relative;z-index:1}
+.chip{display:inline-flex;align-items:center;gap:6px;border-radius:99px;padding:4px 11px;font-size:12.5px;font-weight:700;white-space:nowrap}
+.chip.ok{background:rgba(59,210,138,.16);color:#5BE0A0}
+.chip.due{background:rgba(255,194,75,.16);color:var(--glow)}
+.chip.dim{background:rgba(255,255,255,.08);color:var(--night-ink-2)}
+.chip.lok{background:var(--ok-soft);color:var(--ok)} .chip.lwarn{background:var(--warn-soft);color:var(--warn)} .chip.lbad{background:var(--bad-soft);color:var(--bad)}
+.months{display:flex;gap:6px;overflow-x:auto;margin:18px -22px -4px;padding:0 22px 4px;scrollbar-width:none;position:relative;z-index:1}
+.months::-webkit-scrollbar{display:none}
+.months button{flex:none;border-radius:11px;padding:7px 11px;font-size:13px;font-weight:600;background:rgba(255,255,255,.06);color:var(--night-ink-2)}
+.months button[aria-pressed="true"]{background:var(--glow);color:#2B1D00}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:22px;box-shadow:var(--shadow);padding:20px;min-width:0}
+.card h2{font-size:18px;margin-bottom:10px}
+.line{display:grid;grid-template-columns:34px 1fr auto;gap:12px;align-items:center;padding:12px 0;border-top:1px solid var(--line-2)}
+.line:first-of-type{border-top:0}
+.line .ic{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;color:#fff}
+.line b{font-weight:600}
+.line small{display:block;color:var(--ink-3);font:500 12.5px var(--f-mono)}
+.line .v{font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap}
+.sum{display:flex;justify-content:space-between;align-items:baseline;padding-top:14px;margin-top:4px;border-top:1px dashed var(--line)}
+.sum b{font-family:var(--f-display);font-size:24px;letter-spacing:-.03em}
+.kv{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;padding:10px 0;border-top:1px solid var(--line-2)}
+.kv:first-of-type{border-top:0}
+.kv span{color:var(--ink-3);font-size:13px}
+.kv b{font-weight:600;text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.kv b.mono{font-family:var(--f-mono);letter-spacing:.04em}
+.cp{border:1px solid var(--line);background:var(--surface-2);border-radius:9px;padding:5px 9px;font-size:12.5px;font-weight:600}
+.bars{display:flex;gap:6px;align-items:flex-end;height:110px;margin:8px 0 2px}
+.bars button{flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;font-size:10.5px;color:var(--ink-3);min-width:0}
+.bars i{display:block;width:100%;max-width:26px;border-radius:5px 5px 2px 2px;background:var(--line);transition:background .2s}
+.bars button[aria-pressed="true"] i{background:var(--glow-2)}
+.bars button[aria-pressed="true"]{color:var(--ink);font-weight:700}
+.hrow{display:grid;grid-template-columns:1fr auto auto;gap:10px;align-items:center;padding:10px 0;border-top:1px solid var(--line-2);width:100%;text-align:left}
+.hrow:first-child{border-top:0}
+.hrow b{font-weight:600}
+.hrow .v{font-weight:700;font-variant-numeric:tabular-nums}
+.rbar{height:8px;border-radius:99px;background:var(--line-2);overflow:hidden;margin:12px 0 6px}
+.rbar i{display:block;height:100%;background:linear-gradient(90deg,var(--glow-2),var(--glow));border-radius:99px}
+.foot{text-align:center;color:var(--ink-3);font-size:12.5px;margin-top:24px}
+.toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom));transform:translateX(-50%);background:var(--night);color:#fff;border-radius:14px;padding:10px 16px;font-size:14px;box-shadow:0 12px 30px -10px rgba(0,0,0,.5);z-index:9;animation:tin .25s both}
+@keyframes tin{from{opacity:0;transform:translate(-50%,8px)}}
+.empty{color:var(--ink-3);font-size:14px;padding:8px 0}
+
+@media (max-width:860px){
+  .lg{grid-template-columns:1fr;gap:22px;max-width:440px}
+  .lg-left h1{font-size:32px;margin:6px 0 18px}
+  .mini{max-width:210px;margin:0 auto}
+  .lg-left{text-align:center}
+  .mw{height:20px;line-height:20px;font-size:9px}
+  .lg-card{padding:22px}
+  .cols{grid-template-columns:1fr;gap:14px}
+  .col{gap:14px}
+  .wrap{padding-left:16px;padding-right:16px}
+  .hero .tot{font-size:42px}
+  .card{padding:18px;border-radius:20px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+/* Cổng xem hóa đơn cho khách thuê.
+   Mỗi căn có file vault/<căn>.json đã mã hóa AES-256-GCM bằng khóa sinh từ mật khẩu (PBKDF2-SHA256).
+   Trang này chỉ giải mã trên máy người xem; không có mật khẩu thì không đọc được gì. */
+const APTS=['100','201','202','301','302','401','402','501','502','601','602','700','800'];
+const FLOORS=[['800'],['700'],['601','602'],['501','502'],['401','402'],['301','302'],['201','202'],['100']];
+const LSK='sotoanha.khach';
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const isNum=v=>typeof v==='number'&&isFinite(v);
+const NF=new Intl.NumberFormat('vi-VN');
+const fmt=n=>isNum(n)?NF.format(Math.round(n)):'—';
+const vnd=n=>isNum(n)?NF.format(Math.round(n))+'đ':'—';
+const addM=(k,n)=>{let[y,m]=k.split('-').map(Number);m+=n;y+=Math.floor((m-1)/12);m=((m-1)%12+12)%12+1;return `${y}-${String(m).padStart(2,'0')}`};
+const mLabel=k=>`Tháng ${+k.slice(5)}/${k.slice(0,4)}`;
+const mShort=k=>`T${+k.slice(5)}/${k.slice(2,4)}`;
+const dLabel=iso=>iso?`${iso.slice(8,10)}/${iso.slice(5,7)}/${iso.slice(0,4)}`:'';
+const lsGet=()=>{try{return JSON.parse(localStorage.getItem(LSK))}catch{return null}};
+const lsSet=v=>{try{localStorage.setItem(LSK,JSON.stringify(v))}catch{}};
+const lsDel=()=>{try{localStorage.removeItem(LSK)}catch{}};
+function toast(t){const d=document.createElement('div');d.className='toast';d.textContent=t;document.body.appendChild(d);setTimeout(()=>d.remove(),2200)}
+async function copy(t,msg){try{await navigator.clipboard.writeText(t);toast(msg||'Đã copy')}catch{toast('Không copy được')}}
+const IC={bolt:'<path d="M13 3 5 13.5h6L10 21l8-10.5h-6z"/>',drop:'<path d="M12 3.5s6 6.4 6 11a6 6 0 0 1-12 0c0-4.6 6-11 6-11z"/>',bottle:'<path d="M10 2.5h4M10.5 2.5v3L8 9v11a1.5 1.5 0 0 0 1.5 1.5h5A1.5 1.5 0 0 0 16 20V9l-2.5-3.5v-3"/><path d="M8 13h8"/>',lock:'<rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>'};
+const icon=(n,s=18)=>`<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${IC[n]}</svg>`;
+
+/* ---------- crypto ---------- */
+const fromB64=s=>Uint8Array.from(atob(s),c=>c.charCodeAt(0));
+const toB64=buf=>{const b=new Uint8Array(buf);let s='';for(let i=0;i<b.length;i++)s+=String.fromCharCode(b[i]);return btoa(s)};
+const normPass=s=>String(s||'').normalize('NFC').toLowerCase().replace(/[\s-]/g,'');
+async function deriveKey(pass,salt,iter){
+  const base=await crypto.subtle.importKey('raw',new TextEncoder().encode(normPass(pass)),'PBKDF2',false,['deriveKey']);
+  return crypto.subtle.deriveKey({name:'PBKDF2',salt:fromB64(salt),iterations:iter,hash:'SHA-256'},base,{name:'AES-GCM',length:256},true,['decrypt']);
+}
+async function decryptVault(v,key){
+  const pt=await crypto.subtle.decrypt({name:'AES-GCM',iv:fromB64(v.iv)},key,fromB64(v.ct));
+  return JSON.parse(new TextDecoder().decode(pt));
+}
+async function fetchVault(apt){
+  const r=await fetch(`vault/${apt}.json?t=${Date.now()}`,{cache:'no-store'});
+  if(r.status===404)throw Object.assign(new Error('Căn này chưa được mở tài khoản xem hóa đơn. Hãy liên hệ chủ nhà.'),{code:'nf'});
+  if(!r.ok)throw new Error('Không tải được dữ liệu. Kiểm tra mạng rồi thử lại.');
+  return r.json();
+}
+
+/* ---------- state ---------- */
+const S={apt:'',data:null,sel:null};
+
+/* ---------- login ---------- */
+function miniHTML(){
+  return `<div class="mini" aria-hidden="true"><div class="ant"></div>${FLOORS.map(r=>{const f=r[0][0],g=r[0]==='100';return `<div class="mf f${f}" style="--n:${g?2:r.length}">${r.map(id=>`<div class="mw" data-w="${id}">${id}</div>`).join('')}${g?'<div class="mw lobby"></div>':''}</div>`}).join('')}<div class="mground"></div></div>`;
+}
+function renderLogin(prefill,err){
+  document.documentElement.style.background='#120F20';
+  $('#app').innerHTML=`<div class="login"><div class="lg">
+    <div class="lg-left"><div class="eyebrow">Hóa đơn căn hộ</div><h1>Điện, nước<br>và tiền nhà <span>của bạn</span></h1>${miniHTML()}</div>
+    <form class="lg-card" id="fLogin" autocomplete="on">
+      <h2>Đăng nhập</h2><div class="sub">Dùng số căn và mật khẩu chủ nhà đã gửi qua Zalo.</div>
+      <div class="field"><label for="iApt">Số căn</label><input class="in apt" id="iApt" name="username" inputmode="numeric" maxlength="3" autocomplete="username" placeholder="301" value="${esc(prefill||'')}" required></div>
+      <div class="field"><label for="iPw">Mật khẩu</label><div class="pwrap"><input class="in pw" id="iPw" name="password" type="password" autocomplete="current-password" autocapitalize="off" spellcheck="false" placeholder="xxxx-xxxx" required><button type="button" id="bShow">Hiện</button></div></div>
+      <label class="remember"><input type="checkbox" id="iRem" checked> Ghi nhớ trên điện thoại này</label>
+      <button class="btn" type="submit" id="bGo">Xem hóa đơn</button>
+      <div class="err" id="err" role="alert">${esc(err||'')}</div>
+      <div class="fine">${icon('lock',16)}<span>Hóa đơn được mã hóa. Chỉ người có đúng mật khẩu mới mở được, kể cả chủ trang web cũng không đọc được nếu không có mật khẩu.</span></div>
+    </form></div></div>`;
+  const light=()=>{const v=$('#iApt').value.trim();document.querySelectorAll('.mw[data-w]').forEach(w=>w.classList.toggle('on',w.dataset.w===v))};
+  $('#iApt').addEventListener('input',e=>{e.target.value=e.target.value.replace(/\D/g,'');light();$('#err').textContent=''});
+  $('#iPw').addEventListener('input',()=>$('#err').textContent='');
+  $('#bShow').addEventListener('click',()=>{const p=$('#iPw');p.type=p.type==='password'?'text':'password';$('#bShow').textContent=p.type==='password'?'Hiện':'Ẩn'});
+  $('#fLogin').addEventListener('submit',onLogin);
+  light(); (prefill?$('#iPw'):$('#iApt')).focus({preventScroll:true});
+}
+async function onLogin(e){
+  e.preventDefault();
+  const apt=$('#iApt').value.trim(), pw=$('#iPw').value, btn=$('#bGo'), err=$('#err');
+  if(!APTS.includes(apt)){err.textContent='Số căn không đúng. Các căn: '+APTS.join(', ');return}
+  if(!normPass(pw)){err.textContent='Nhập mật khẩu';return}
+  btn.disabled=true;btn.innerHTML='<span class="spin"></span> Đang mở khóa…';err.textContent='';
+  try{
+    const v=await fetchVault(apt);
+    const key=await deriveKey(pw,v.salt,v.iter);
+    let data; try{data=await decryptVault(v,key)}catch{throw new Error('Sai mật khẩu. Kiểm tra lại tin nhắn chủ nhà gửi.')}
+    if(data.apt!==apt)throw new Error('Dữ liệu không khớp với số căn.');
+    if($('#iRem').checked)lsSet({apt,salt:v.salt,key:toB64(await crypto.subtle.exportKey('raw',key))}); else lsDel();
+    S.apt=apt;S.data=data;S.sel=null;history.replaceState(null,'','#'+apt);renderBill();
+  }catch(x){err.textContent=x.message;btn.disabled=false;btn.textContent='Xem hóa đơn'}
+}
+
+/* ---------- bill view ---------- */
+function renderBill(){
+  document.documentElement.style.background='';
+  const d=S.data, bills=d.bills||[], sel=S.sel||(bills.length?bills[bills.length-1].m:null), b=bills.find(x=>x.m===sel);
+  S.sel=sel;
+  const st=b?(b.paid?'<span class="chip ok">✓ Đã thanh toán</span>':'<span class="chip due">Chưa thanh toán</span>'):'';
+  const line=(c,ic,t,sub,v)=>`<div class="line"><span class="ic" style="background:${c}">${icon(ic)}</span><div><b>${t}</b><small>${sub}</small></div><span class="v">${v}</span></div>`;
+  const P=d.prices||{};
+  const receipt=b?`<div class="card"><h2>Chi tiết ${mLabel(b.m).toLowerCase()}</h2>
+    ${line('var(--elec)','bolt','Tiền điện',isNum(b.eu)?`${fmt(b.pe)} → ${fmt(b.ce)} · ${fmt(b.eu)} số × ${fmt(P.e)}đ`:'Chưa có số',vnd(b.em))}
+    ${line('var(--water)','drop','Nước sinh hoạt',d.waterFree?'Miễn phí cho căn hộ của bạn':(isNum(b.wu)?`${fmt(b.pw)} → ${fmt(b.cw)} · ${fmt(b.wu)} m³ × ${fmt(P.w)}đ`:'Chưa có số'),d.waterFree?'0đ':vnd(b.wm))}
+    ${line('var(--lavie)','bottle','Nước Lavie',`${b.ln||0} bình × ${fmt(P.l)}đ`,vnd(b.lm))}
+    <div class="sum"><span style="color:var(--ink-3)">Tổng cộng</span><b class="num">${vnd(b.total)}</b></div></div>`:'';
+  const pay=d.pay||{}, hasBank=pay.account&&pay.bank;
+  const note=b?`${d.apt} ${mShort(b.m).replace('/','-')}`:d.apt;
+  const payHTML=(b&&!b.paid&&hasBank)?`<div class="card"><h2>Chuyển khoản</h2>
+    <div class="kv"><span>Ngân hàng</span><b>${esc(pay.bank)}</b><span></span></div>
+    <div class="kv"><span>Số tài khoản</span><b class="mono">${esc(pay.account)}</b><button class="cp" data-cp="${esc(pay.account)}" data-msg="Đã copy số tài khoản">Copy</button></div>
+    ${pay.holder?`<div class="kv"><span>Chủ tài khoản</span><b>${esc(pay.holder)}</b><span></span></div>`:''}
+    <div class="kv"><span>Số tiền</span><b class="mono">${fmt(b.total)}</b><button class="cp" data-cp="${Math.round(b.total)}" data-msg="Đã copy số tiền">Copy</button></div>
+    <div class="kv"><span>Nội dung</span><b class="mono">${esc(note)}</b><button class="cp" data-cp="${esc(note)}" data-msg="Đã copy nội dung">Copy</button></div></div>`:'';
+  const r=d.rent;
+  const rentHTML=r&&r.rent?(()=>{const chip={ok:'lok',soon:'lwarn',late:'lbad',none:'lbad'}[r.st]||'';const pct=r.through?Math.max(0,Math.min(100,Math.round(r.ahead/(r.cycle||1)*100))):0;
+    return `<div class="card"><div style="display:flex;align-items:center;gap:10px;margin-bottom:6px"><h2 style="margin:0;flex:1">Tiền nhà</h2><span class="chip ${chip}">${esc(r.label)}</span></div>
+      <div class="kv"><span>Giá thuê</span><b>${vnd(r.rent)}/tháng</b><span></span></div>
+      <div class="kv"><span>Chu kỳ trả</span><b>${r.cycle===12?'Cả năm':r.cycle===1?'Hàng tháng':r.cycle+' tháng/lần'}</b><span></span></div>
+      ${r.through?`<div class="rbar"><i style="width:${pct}%"></i></div><div style="font-size:13px;color:var(--ink-3)">Đã trả đến hết ${mLabel(r.through).toLowerCase()} · kỳ tới ${mShort(addM(r.through,1))}: ${vnd(r.rent*r.cycle)}</div>`:''}
+      ${(r.payments||[]).length?`<div style="margin-top:12px">${r.payments.map(p=>`<div class="hrow"><div><b>${p.months===1?mShort(p.fromMonth):`${mShort(p.fromMonth)} → ${mShort(addM(p.fromMonth,p.months-1))}`}</b><div style="font-size:12.5px;color:var(--ink-3)">Nhận ngày ${dLabel(p.date)}</div></div><span class="v">${vnd(p.amount)}</span><span></span></div>`).join('')}</div>`:''}
+    </div>`})():'';
+  const mx=Math.max(1,...bills.map(x=>x.total||0));
+  const histHTML=bills.length?`<div class="card"><h2>Lịch sử điện nước</h2>
+    <div class="bars">${bills.slice(-12).map(x=>`<button data-m="${x.m}" aria-pressed="${x.m===sel}" aria-label="${mLabel(x.m)}: ${vnd(x.total)}"><i style="height:${Math.max(4,(x.total||0)/mx*84)}px"></i>${mShort(x.m).slice(0,-3)}</button>`).join('')}</div>
+    <div style="margin-top:8px">${[...bills].reverse().slice(0,12).map(x=>`<button class="hrow" data-m="${x.m}"><b>${mLabel(x.m)}</b><span class="v">${vnd(x.total)}</span>${x.paid?'<span class="chip lok">Đã trả</span>':'<span class="chip lwarn">Chưa trả</span>'}</button>`).join('')}</div></div>`:'';
+  $('#app').innerHTML=`<div class="wrap">
+    <div class="top"><div class="who"><small>${esc(d.building||'')}</small><b>Căn ${esc(d.apt)}${d.tenant?` · ${esc(d.tenant)}`:''}</b></div><button class="ghost" id="bOut">Đăng xuất</button></div>
+    <div class="cols"><div class="col">
+      <section class="hero">${b?`<div class="ml">Hóa đơn ${mLabel(b.m).toLowerCase()}</div>
+        <div class="tot num">${fmt(b.total)}<small>đ</small></div>
+        <div class="row">${st}<span class="chip dim">Chốt số ${d.readingDay||20}/${+addM(b.m,-1).slice(5)} → ${d.readingDay||20}/${+b.m.slice(5)}</span></div>
+        <div class="months">${[...bills].reverse().slice(0,12).map(x=>`<button data-m="${x.m}" aria-pressed="${x.m===sel}">${mShort(x.m)}</button>`).join('')}</div>`
+        :`<div class="ml">Hóa đơn điện nước</div><div class="tot" style="font-size:28px">Chưa có hóa đơn</div><div class="row"><span class="chip dim">Chủ nhà sẽ cập nhật sau ngày chốt số</span></div>`}</section>
+      ${receipt}${payHTML}
+    </div><div class="col">${rentHTML}${histHTML}</div></div>
+    <div class="foot">Cập nhật lúc ${d.generatedAt?new Date(d.generatedAt).toLocaleString('vi-VN'):'—'} · Thắc mắc vui lòng nhắn chủ nhà</div>
+  </div>`;
+  $('#bOut').onclick=()=>{lsDel();S.data=null;renderLogin(S.apt)};
+  document.querySelectorAll('[data-m]').forEach(el=>el.onclick=()=>{S.sel=el.dataset.m;renderBill();window.scrollTo({top:0,behavior:'smooth'})});
+  document.querySelectorAll('[data-cp]').forEach(el=>el.onclick=()=>copy(el.dataset.cp,el.dataset.msg));
+}
+
+/* ---------- boot ---------- */
+(async function(){
+  const h=decodeURIComponent(location.hash.slice(1)).replace(/\D/g,'').slice(0,3);
+  const saved=lsGet();
+  if(saved&&(!h||h===saved.apt)){
+    try{
+      const v=await fetchVault(saved.apt);
+      if(v.salt!==saved.salt)throw new Error('Mật khẩu đã được đổi, vui lòng đăng nhập lại.');
+      const key=await crypto.subtle.importKey('raw',fromB64(saved.key),{name:'AES-GCM'},false,['decrypt']);
+      S.apt=saved.apt;S.data=await decryptVault(v,key);renderBill();return;
+    }catch(x){lsDel();renderLogin(saved.apt,x.code==='nf'?x.message:(x.message.includes('Mật khẩu')?x.message:''));return}
+  }
+  renderLogin(APTS.includes(h)?h:'');
+})();
+</script>
+</body>
+</html>
