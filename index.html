@@ -123,7 +123,7 @@ h1,h2,h3{font-family:var(--f-display);margin:0;letter-spacing:-.02em}
 .ledger.three{grid-template-columns:repeat(3,1fr)}
 .ledger > div{padding:18px 20px;border-left:1px solid var(--line-2);min-width:0}
 .ledger > div:first-child{border-left:0}
-.ledger .lab{font-size:12.5px;color:var(--ink-3);font-weight:500;display:flex;align-items:center;gap:6px}
+.ledger .lab{font-size:12.5px;color:var(--ink-3);font-weight:500;display:flex;align-items:center;gap:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .ledger .val{font-family:var(--f-display);font-weight:700;font-size:28px;letter-spacing:-.03em;line-height:1.15;margin-top:6px;white-space:nowrap}
 .ledger .val small{font-size:15px;color:var(--ink-3);font-weight:600;margin-left:2px}
 .ledger .foot{font-size:12.5px;color:var(--ink-3);margin-top:3px}
@@ -482,6 +482,7 @@ h1,h2,h3{font-family:var(--f-display);margin:0;letter-spacing:-.02em}
   .toasts{bottom:calc(96px + env(safe-area-inset-bottom))}
   .in{font-size:16px}
 }
+@media (max-width:480px){ .hide-s{display:none} }
 @media (max-width:380px){ .ledger .val{font-size:20px} .bld{width:calc(100% - 56px)} .unit .u-who{font-size:10px} }
 </style>
 </head>
@@ -696,7 +697,9 @@ async function ghGet(g){
   const r=await fetch(`${ghUrl(g)}?ref=${encodeURIComponent(g.branch||'main')}`,{headers:ghHeaders(g),cache:'no-store'});
   if(r.status===404){const rr=await fetch(`https://api.github.com/repos/${encodeURIComponent(g.owner)}/${encodeURIComponent(g.repo)}`,{headers:ghHeaders(g)});if(!rr.ok)throw Object.assign(new Error(ghErr(rr.status)),{status:rr.status});return{data:null,sha:null}}
   if(!r.ok)throw Object.assign(new Error(ghErr(r.status)),{status:r.status});
-  const j=await r.json(); return{data:JSON.parse(b64dec(j.content)),sha:j.sha};
+  const j=await r.json(); let c=j.content;
+  if(!c&&j.sha){const br=await fetch(`https://api.github.com/repos/${encodeURIComponent(g.owner)}/${encodeURIComponent(g.repo)}/git/blobs/${j.sha}`,{headers:ghHeaders(g),cache:'no-store'});if(!br.ok)throw Object.assign(new Error(ghErr(br.status)),{status:br.status});c=(await br.json()).content} // file > 1MB
+  return{data:JSON.parse(b64dec(c)),sha:j.sha};
 }
 async function ghPut(g,data,sha){
   const body={message:`Cập nhật sổ tòa nhà — ${new Date().toLocaleString('vi-VN')}`,content:b64enc(JSON.stringify(data,null,2)+'\n'),branch:g.branch||'main'};
@@ -706,10 +709,10 @@ async function ghPut(g,data,sha){
   return (await r.json()).content.sha;
 }
 function saveLocal(){if(DEMO)return;lsSet(LS.data,DB);lsSet(LS.meta,META)}
-let syncTimer=null;
+let syncTimer=null, REV=0, syncAgain=false;
 function commit(){
   if(DEMO){renderSyncUI();return}
-  DB.updatedAt=new Date().toISOString(); META.dirty=true; saveLocal();
+  REV++; DB.updatedAt=new Date().toISOString(); META.dirty=true; saveLocal();
   SYNC.state=ghReady()?'dirty':'local'; renderSyncUI();
   if(ghReady()){clearTimeout(syncTimer);syncTimer=setTimeout(()=>sync(),1800)}
 }
@@ -717,16 +720,21 @@ let syncing=false;
 async function sync(force=false){
   if(DEMO){toast('Đang xem dữ liệu mẫu — không lưu lên GitHub');return}
   const g=gh(); if(!ghReady(g)){toast('Chưa kết nối GitHub. Vào Cài đặt → Đồng bộ GitHub.');go('settings');return}
-  if(syncing)return; if(!META.dirty&&!force){toast('Dữ liệu đã được lưu trên GitHub');return}
-  syncing=true; SYNC.state='busy'; renderSyncUI();
+  if(syncing){syncAgain=true;return} if(!META.dirty&&!force){toast('Dữ liệu đã được lưu trên GitHub');return}
+  syncing=true; syncAgain=false; SYNC.state='busy'; renderSyncUI();
+  const rev=REV;
   try{
-    META.sha=await ghPut(g,DB,META.sha); META.dirty=false; META.syncedAt=Date.now(); saveLocal(); SYNC.state='ok';
+    META.sha=await ghPut(g,DB,META.sha); META.syncedAt=Date.now();
+    // chỉ đánh dấu "đã lưu" nếu không có sửa đổi mới trong lúc đang tải lên
+    if(REV===rev){META.dirty=false;SYNC.state='ok'}else{SYNC.state='dirty';syncAgain=true}
+    saveLocal();
     setTimeout(()=>publishVault(),0);
   }catch(e){
     if(e.status===409||e.status===422){syncing=false;return resolveConflict()}
     SYNC.state='err'; SYNC.msg=e.message; toast('Chưa lưu được: '+e.message,'bad');
   }
   syncing=false; renderSyncUI();
+  if(syncAgain&&META.dirty&&SYNC.state!=='err'){syncAgain=false;clearTimeout(syncTimer);syncTimer=setTimeout(()=>sync(),600)}
 }
 async function resolveConflict(){
   const g=gh(); let remote;
@@ -734,6 +742,7 @@ async function resolveConflict(){
   const keepLocal=await ask('Dữ liệu trên GitHub vừa được sửa ở nơi khác',
     'Có thể Claude hoặc máy khác vừa cập nhật. Bạn muốn dùng bản nào? Bản không chọn vẫn được giữ lại làm bản dự phòng trong Cài đặt.',
     'Ghi đè bằng bản trên máy này','Dùng bản trên GitHub');
+  if(keepLocal===null){SYNC.state='err';SYNC.msg='Có xung đột dữ liệu, chưa chọn bản nào. Bấm Lưu để chọn lại.';renderSyncUI();return}
   if(keepLocal){lsSet(LS.backup,{at:Date.now(),data:remote.data});META.sha=remote.sha;META.dirty=true;return sync(true)}
   lsSet(LS.backup,{at:Date.now(),data:DB});
   DB=normalize(remote.data);META={sha:remote.sha,dirty:false,syncedAt:Date.now()};saveLocal();SYNC.state='ok';render();toast('Đã tải bản mới nhất từ GitHub');
@@ -861,7 +870,7 @@ function makeDemo(){
 
 /* ---------- state & routing ---------- */
 const TABS=[['home','Tổng quan','home'],['util','Điện nước','bolt'],['rent','Tiền nhà','key'],['money','Thu chi','wallet'],['settings','Cài đặt','gear']];
-const defaultMonth=()=>{const t=todayISO();return +t.slice(8)>=20?t.slice(0,7):addM(t.slice(0,7),-1)};
+const defaultMonth=(day=20)=>{const t=todayISO();return +t.slice(8)>=day?t.slice(0,7):addM(t.slice(0,7),-1)};
 const state={tab:(location.hash.slice(1)||'home'),month:defaultMonth(),txFilter:'all',firstPaint:true};
 if(!TABS.some(t=>t[0]===state.tab))state.tab='home';
 function go(tab){state.tab=tab;history.replaceState(null,'','#'+tab);render();window.scrollTo({top:0})}
@@ -905,7 +914,8 @@ function render(){
   const v=$('#view');
   const banner=DEMO?`<div class="banner">${icon('alert',18)}<div class="grow"><b>Đang xem dữ liệu mẫu.</b> Số liệu là giả, chỉ để xem thử giao diện.</div><button class="btn sm" data-act="demo-exit">Thoát xem thử</button></div>`:'';
   v.innerHTML=banner+({home:viewHome,util:viewUtil,rent:viewRent,money:viewMoney,settings:viewSettings}[state.tab])();
-  ({home:afterHome,money:afterMoney}[state.tab]||(()=>{}))();
+  tipHide();
+  ({home:afterHome,util:afterUtil,money:afterMoney}[state.tab]||(()=>{}))();
   state.firstPaint=false;
 }
 
@@ -981,7 +991,7 @@ function alertsHTML(){
   if(notEntered)out.push(['info','bolt',`${notEntered} căn chưa nhập số điện ${mShort(m)}`,`Chụp công tơ ngày ${DB.settings.readingDay} rồi nhập trong mục Điện nước`,'nav','util']);
   const unpaid=APTS.filter(id=>{const b=bill(id,m);return b.entered&&!b.paid&&b.total>0});
   if(unpaid.length)out.push(['warn','receipt',`${unpaid.length} hóa đơn điện nước chưa thu`,`Còn ${vnd(unpaid.reduce((s,id)=>s+bill(id,m).total,0))} · căn ${unpaid.join(', ')}`,'nav','util']);
-  const rec=DB.recurring.filter(r=>r.amount>0||true), left=rec.filter(r=>!recurTx(r,m));
+  const rec=DB.recurring, left=rec.filter(r=>!recurTx(r,m));
   if(left.length&&rec.length)out.push(['info','people',`${left.length}/${rec.length} khoản chi cố định chưa đánh dấu`,left.slice(0,4).map(r=>esc(r.who)).join(', ')+(left.length>4?'…':''),'nav','money']);
   if(!out.length)return `<div class="empty"><b>Không có việc gì tồn đọng</b>Tiền nhà, điện nước và chi cố định đều đã xong.</div>`;
   return `<div class="alerts">${out.map(([k,ic,t,s,act,arg])=>`<button class="alert" data-act="${act}" ${act==='apt'?`data-apt="${arg}"`:`data-tab="${arg}"`}><span class="ic ${k}">${icon(ic,18)}</span><span class="tx"><b>${t}</b><span>${s}</span></span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--ink-3)"><path d="M9 6l6 6-6 6"/></svg></button>`).join('')}</div>`;
@@ -995,7 +1005,7 @@ function viewHome(){
         <div><div class="lab"><span class="sw" style="background:var(--ok)"></span>Tổng thu</div><div class="val num">${short(S.income)}</div><div class="foot">Tiền nhà ${short(S.rent)} · điện nước ${short(S.utilPaid)}</div></div>
         <div><div class="lab"><span class="sw" style="background:var(--c-salary)"></span>Tổng chi</div><div class="val num">${short(S.expense)}</div><div class="foot">Lương ${short(S.byCat.luong||0)} · khác ${short(S.expense-(S.byCat.luong||0))}</div></div>
         <div><div class="lab"><span class="sw" style="background:var(--glow)"></span>Còn lại</div><div class="val num" style="color:${S.net<0?'var(--bad)':'inherit'}">${short(S.net)}</div><div class="foot">${mLabel(state.month)}</div></div>
-        <div><div class="lab"><span class="sw" style="background:var(--elec)"></span>Điện nước chưa thu</div><div class="val num">${short(S.utilUnpaid)}</div><div class="foot">${S.entered}/13 căn đã nhập số</div></div>
+        <div><div class="lab"><span class="sw" style="background:var(--elec)"></span>Chưa thu</div><div class="val num">${short(S.utilUnpaid)}</div><div class="foot">Điện nước · ${S.entered}/13 căn đã nhập</div></div>
       </div>
       <div class="card"><div class="card-h"><h2>Thu và chi 12 tháng</h2><span class="grow"></span><span class="chip"><span class="sw" style="background:var(--ok)"></span>Thu</span><span class="chip"><span class="sw" style="background:var(--c-salary)"></span>Chi</span><span class="chip"><span class="sw" style="background:var(--glow-2);height:3px;width:12px;border-radius:2px"></span>Còn lại</span></div><div class="chart-box" id="cFlow"></div><div class="hint" style="font-size:12px;color:var(--ink-3);margin-top:6px">Rê chuột hoặc chạm vào cột để xem chi tiết, bấm để chuyển sang tháng đó.</div></div>
       <div class="card"><div class="card-h"><h2>Cần xử lý</h2></div>${alertsHTML()}</div>
@@ -1116,7 +1126,7 @@ function utilRow(id){
     <div class="u-cell u-e"><label><span style="color:var(--elec)">${icon('bolt',14)}</span>&nbsp;Điện (số)</label><div class="mpair">${meterIn('e',p,id,1)}<span class="arr">→</span>${meterIn('e',m,id)}</div><div class="ucalc" data-o="e"></div></div>
     <div class="u-cell u-w"><label><span style="color:var(--water)">${icon('drop',14)}</span>&nbsp;Nước (m³)${a.waterFree?'<span class="free">Miễn phí</span>':''}</label><div class="mpair">${meterIn('w',p,id,1)}<span class="arr">→</span>${meterIn('w',m,id)}</div><div class="ucalc" data-o="w"></div></div>
     <div class="u-cell u-l"><label><span style="color:var(--lavie)">${icon('bottle',14)}</span>&nbsp;Lavie (bình)</label><div class="stepper"><button data-act="lav" data-d="-1" data-apt="${id}" aria-label="Bớt 1 bình">−</button><input inputmode="numeric" data-meter="lavie" data-m="${m}" data-apt="${id}" value="${b.ln||''}" placeholder="0" aria-label="Số bình Lavie căn ${id}"><button data-act="lav" data-d="1" data-apt="${id}" aria-label="Thêm 1 bình">+</button></div><div class="ucalc" data-o="l"></div></div>
-    <div class="u-total"><span class="tt num" data-o="t"></span><div class="acts"><button class="paidbtn ${b.paid?'on':''}" data-act="paid" data-apt="${id}">${b.paid?'✓ Đã thu':'Chưa thu'}</button><button class="btn sm" data-act="bill" data-apt="${id}" aria-label="Xem hóa đơn căn ${id}">${icon('receipt',16)}</button></div></div>
+    <div class="u-total"><span class="tt num" data-o="t"></span><div class="acts"><button class="paidbtn ${b.paid?'on':''}" data-act="paid" data-apt="${id}" ${b.entered||b.paid?'':'hidden'}>${b.paid?'✓ Đã thu':'Chưa thu'}</button><button class="btn sm" data-act="bill" data-apt="${id}" aria-label="Xem hóa đơn căn ${id}">${icon('receipt',16)}</button></div></div>
   </div>`;
 }
 function fillUtilRow(id){
@@ -1128,6 +1138,7 @@ function fillUtilRow(id){
   $('[data-o="t"]',row).textContent=b.entered?vnd(b.total):'—';
   $$('.meter',row).forEach(i=>i.classList.toggle('err',(i.dataset.meter==='e'&&b.eu<0)||(i.dataset.meter==='w'&&b.wu<0)));
   row.classList.toggle('paid',b.paid);
+  const pb=$('.paidbtn',row); if(pb)pb.hidden=!(b.entered||b.paid);
 }
 function utilSummaryHTML(){
   const S=monthSummary(state.month),occ=DB.apartments.filter(a=>a.tenant).length||13;
@@ -1381,7 +1392,7 @@ function portalCardHTML(){
 /* ---------- sheet / ask / toast ---------- */
 let lastFocus=null;
 function openSheet(title,html){lastFocus=document.activeElement;$('#sheetTitle').textContent=title;$('#sheetBody').innerHTML=html;$('#sheet').classList.add('on');$('#scrim').classList.add('on');setTimeout(()=>{const f=$('#sheetBody input:not([type=hidden]),#sheetBody select,#sheetBody button');if(f&&matchMedia('(min-width:960px)').matches)f.focus()},60)}
-function closeSheet(){$('#sheet').classList.remove('on');$('#scrim').classList.remove('on');if(askResolve){askResolve(false);askResolve=null}lastFocus?.focus?.()}
+function closeSheet(){$('#sheet').classList.remove('on');$('#scrim').classList.remove('on');tipHide();if(askResolve){askResolve(null);askResolve=null} /* đóng ngang = null: không chọn gì */lastFocus?.focus?.()}
 let askResolve=null;
 function ask(title,text,okLabel,cancelLabel){return new Promise(res=>{openSheet(title,`<p style="margin:0 0 8px;color:var(--ink-2)">${esc(text)}</p><div class="sheet-actions"><button class="btn" data-act="ask-no">${esc(cancelLabel)}</button><button class="btn primary" data-act="ask-yes">${esc(okLabel)}</button></div>`);askResolve=res})}
 function toast(msg,kind){const t=document.createElement('div');t.className='toast '+(kind||'');t.textContent=msg;$('#toasts').appendChild(t);setTimeout(()=>t.remove(),kind==='bad'?5200:2600)}
@@ -1390,8 +1401,8 @@ function applyTheme(){const t=lsGet(LS.theme,'auto');if(t==='auto')delete docume
 /* ---------- actions ---------- */
 const ACT={
   nav:el=>{closeSheet();go(el.dataset.tab)},
-  'm-prev':()=>{state.month=addM(state.month,-1);render();if(state.tab==='util')afterUtil()},
-  'm-next':()=>{state.month=addM(state.month,1);render();if(state.tab==='util')afterUtil()},
+  'm-prev':()=>{state.month=addM(state.month,-1);render()},
+  'm-next':()=>{state.month=addM(state.month,1);render()},
   apt:el=>aptSheet(el.dataset.apt),
   bill:el=>billSheet(el.dataset.apt),
   close:()=>closeSheet(),
@@ -1413,7 +1424,7 @@ const ACT={
   txf:el=>{state.txFilter=el.dataset.f;render()},
   recur:el=>{const r=DB.recurring.find(x=>x.id===el.dataset.id),m=state.month,t=recurTx(r,m);
     if(t)DB.transactions=DB.transactions.filter(x=>x!==t);
-    else DB.transactions.push({id:uid(),date:m===thisMonth()?todayISO():m+'-05',kind:'chi',cat:r.cat||'luong',who:r.who,note:r.role||'',amount:r.amount,recurId:r.id});
+    else{DB.transactions.push({id:uid(),date:m===thisMonth()?todayISO():m+'-05',kind:'chi',cat:r.cat||'luong',who:r.who,note:r.role||'',amount:r.amount,recurId:r.id});if(!r.amount)toast(`“${r.who}” chưa có số tiền — điền trong Cài đặt → Chi cố định`,'bad')}
     commit();render()},
   'recur-all':()=>{const m=state.month;DB.recurring.forEach(r=>{if(!recurTx(r,m))DB.transactions.push({id:uid(),date:m===thisMonth()?todayISO():m+'-05',kind:'chi',cat:r.cat||'luong',who:r.who,note:r.role||'',amount:r.amount,recurId:r.id})});commit();render();toast('Đã đánh dấu tất cả khoản cố định')},
   'rec-add':()=>{DB.recurring.push({id:uid(),who:'Khoản mới',group:'Gia đình & khác',role:'',cat:'luong',amount:0});commit();render()},
@@ -1444,7 +1455,7 @@ document.addEventListener('input',e=>{
 });
 document.addEventListener('change',e=>{
   const t=e.target;
-  if(t.dataset.set){const k=t.dataset.set;let v=t.value;if(t.dataset.money){v=parseMoney(v);if(!isNum(v)){toast('Đơn giá chưa đúng','bad');return}t.value=fmt(v)}else if(k==='readingDay')v=Math.min(28,Math.max(1,+v||20));else v=v.trim();DB.settings[k]=v;commit();renderSyncUI();toast('Đã lưu')}
+  if(t.dataset.set){const k=t.dataset.set;let v=t.value;if(t.dataset.money){v=parseMoney(v);if(!isNum(v)){toast('Đơn giá chưa đúng','bad');return}t.value=fmt(v)}else if(k==='readingDay'){v=Math.min(28,Math.max(1,+v||20));t.value=v}else v=v.trim();DB.settings[k]=v;commit();renderSyncUI();toast('Đã lưu')}
   if(t.dataset.portal){DB.settings.portal[t.dataset.portal]=t.value.trim();commit();toast('Đã lưu')}
   if(t.dataset.rec){const r=DB.recurring.find(x=>x.id===t.dataset.rec);const k=t.dataset.k;if(k==='amount'){const v=parseMoney(t.value);r.amount=isNum(v)?v:0;t.value=r.amount?fmt(r.amount):''}else r[k]=t.value.trim();commit()}
 });
@@ -1456,16 +1467,15 @@ document.addEventListener('submit',async e=>{
   lsSet(LS.gh,g); toast('Đang kết nối…');
   try{const {data,sha}=await ghGet(g);
     if(data){const ok=META.dirty&&DB.updatedAt?await ask('Trên GitHub đã có dữ liệu','Dùng dữ liệu trên GitHub cho máy này? (Bản trên máy sẽ được giữ làm bản dự phòng.)','Dùng bản GitHub','Ghi đè bằng bản trên máy'):true;
+      if(ok===null){toast('Chưa kết nối — bạn chưa chọn bản dữ liệu nào');renderSyncUI();return}
       if(ok){lsSet(LS.backup,{at:Date.now(),data:DB});DB=normalize(data);META={sha,dirty:false,syncedAt:Date.now()};saveLocal();SYNC.state='ok';render();toast('Đã kết nối và tải dữ liệu')}
       else{META.sha=sha;META.dirty=true;await sync(true);render()}}
     else{META.sha=null;META.dirty=true;await sync(true);render();toast('Đã tạo data.json trên GitHub')}
   }catch(err){SYNC.state='err';SYNC.msg=err.message;render();toast('Không kết nối được: '+err.message,'bad')}
 });
-$('#fileIn').addEventListener('change',async e=>{const file=e.target.files[0];if(!file)return;try{const d=JSON.parse(await file.text());const ok=await ask('Nhập dữ liệu từ file?',`File “${file.name}” sẽ thay cho dữ liệu hiện tại. Bản hiện tại được giữ làm bản dự phòng.`,'Nhập','Thôi');if(!ok)return;lsSet(LS.backup,{at:Date.now(),data:DB});DB=normalize(d);commit();render();toast('Đã nhập dữ liệu')}catch{toast('File không đúng định dạng JSON','bad')}e.target.value=''});
-window.addEventListener('hashchange',()=>{const t=location.hash.slice(1);if(TABS.some(x=>x[0]===t)&&t!==state.tab){state.tab=t;render();if(t==='util')afterUtil()}});
+$('#fileIn').addEventListener('change',async e=>{const file=e.target.files[0];if(!file)return;try{const d=JSON.parse(await file.text());const ok=await ask('Nhập dữ liệu từ file?',`File “${file.name}” sẽ thay cho dữ liệu hiện tại. Bản hiện tại được giữ làm bản dự phòng.`,'Nhập','Thôi');if(!ok)return;if(DEMO){DB=DEMO;DEMO=null}lsSet(LS.backup,{at:Date.now(),data:DB});DB=normalize(d);commit();render();toast('Đã nhập dữ liệu')}catch{toast('File không đúng định dạng JSON','bad')}e.target.value=''});
+window.addEventListener('hashchange',()=>{const t=location.hash.slice(1);if(TABS.some(x=>x[0]===t)&&t!==state.tab){state.tab=t;render()}});
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&ghReady()&&!DEMO&&!META.dirty)pullRemote(true)});
-// patch: utilities need post-render fill
-const _render=render; render=function(){_render();if(state.tab==='util')afterUtil()};
 
 /* ---------- boot ---------- */
 (async function boot(){
@@ -1473,6 +1483,7 @@ const _render=render; render=function(){_render();if(state.tab==='util')afterUti
   const local=lsGet(LS.data); META=Object.assign(META,lsGet(LS.meta,{}));
   DB=normalize(local||await fetchSiteData()||emptyDB());
   SYNC.state=ghReady()?(META.dirty?'dirty':'ok'):'local';
+  state.month=defaultMonth(+DB.settings.readingDay||20);
   render();
   if(ghReady())pullRemote(true);
 })();

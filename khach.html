@@ -336,17 +336,19 @@ function renderBill(){
     <div class="sum"><span style="color:var(--ink-3)">${t('total')}</span><b class="num">${vnd(b.total)}</b></div></div>`:'';
   const pay=d.pay||{}, hasBank=pay.account&&pay.bank;
   const note=b?`${d.apt} ${noteMonth(b.m)}`:d.apt;
-  const payHTML=(b&&!b.paid&&hasBank)?`<div class="card"><h2>${t('transfer')}</h2>
+  const payHTML=(b&&!b.paid&&b.total>0&&hasBank)?`<div class="card"><h2>${t('transfer')}</h2>
     <div class="kv"><span>${t('bank')}</span><b>${esc(pay.bank)}</b><span></span></div>
     <div class="kv"><span>${t('acct')}</span><b class="mono">${esc(pay.account)}</b><button class="cp" data-cp="${esc(pay.account)}" data-msg="${esc(t('cpAcct'))}">${t('copy')}</button></div>
     ${pay.holder?`<div class="kv"><span>${t('holder')}</span><b>${esc(pay.holder)}</b><span></span></div>`:''}
     <div class="kv"><span>${t('amount')}</span><b class="mono">${fmt(b.total)}</b><button class="cp" data-cp="${Math.round(b.total)}" data-msg="${esc(t('cpAmt'))}">${t('copy')}</button></div>
     <div class="kv"><span>${t('note')}</span><b class="mono">${esc(note)}</b><button class="cp" data-cp="${esc(note)}" data-msg="${esc(t('cpNote'))}">${t('copy')}</button></div></div>`:'';
-  const r=d.rent;
+  const r=d.rent?{...d.rent}:null;
+  if(r){const n=new Date(),cur=`${n.getFullYear()}-${String(n.getMonth()+1).padStart(2,'0')}`;
+    if(!r.through)r.st='none';else{const dd=diffM(r.through,cur);r.st=dd<0?'late':dd===0?'soon':'ok';r.ahead=Math.max(0,dd)}}
   const rentLabel=r=>{
     if(r.st==='ok'&&r.through)return t('stOk',mShort(r.through));
     if(r.st==='soon')return t('stSoon');
-    if(r.st==='late'&&r.through){const cur=(d.generatedAt||new Date().toISOString()).slice(0,7);return t('stLate',Math.max(1,diffM(cur,r.through)))}
+    if(r.st==='late'&&r.through){const n=new Date(),cur=`${n.getFullYear()}-${String(n.getMonth()+1).padStart(2,'0')}`;return t('stLate',Math.max(1,diffM(cur,r.through)))}
     if(r.st==='none')return t('stNone');
     return r.label||'';
   };
