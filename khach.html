@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#1D1B2C">
+<meta name="theme-color" content="#120F20" id="mTheme">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -45,6 +45,7 @@
 html{-webkit-text-size-adjust:100%}
 body{margin:0;background:var(--paper);color:var(--ink);font:15px/1.5 var(--f-body);-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent}
 button,input{font:inherit;color:inherit}
+button,a,input,label{touch-action:manipulation}
 button{cursor:pointer;border:0;background:none;padding:0}
 :focus-visible{outline:2px solid var(--glow-2);outline-offset:2px;border-radius:8px}
 h1,h2,h3{font-family:var(--f-display);margin:0;letter-spacing:-.02em}
@@ -65,10 +66,12 @@ h1,h2,h3{font-family:var(--f-display);margin:0;letter-spacing:-.02em}
 .mini{width:100%;max-width:300px}
 .mini .ant{width:2px;height:16px;background:var(--night-3);margin:0 auto}
 .mini .ant::before{content:"";display:block;width:5px;height:5px;border-radius:50%;background:#FF5A4E;margin:-3px 0 0 -1.5px;box-shadow:0 0 8px #FF5A4E}
-.mf{display:grid;grid-template-columns:repeat(var(--n),1fr);gap:5px;padding:5px;background:#3B355A;border-radius:5px;margin-bottom:5px}
+.mf{display:grid;grid-template-columns:repeat(var(--n),1fr);gap:6px;padding:6px 6px 5px;background:linear-gradient(180deg,#4B4470,#3E3860 70%,#373154);box-shadow:inset 0 2px 0 #6A6292;border-radius:4px;margin-bottom:3px}
 .mf.f8{margin-left:24%;margin-right:24%}.mf.f7{margin-left:12%;margin-right:12%}
-.mw{height:26px;border-radius:3px;background:#1E1A33;font:700 10px/26px var(--f-mono);text-align:center;color:#5F5A80;transition:background .35s,color .35s,box-shadow .35s}
-.mw.on{background:linear-gradient(180deg,#FFE09A,var(--glow) 50%,var(--glow-2));color:#3A2600;box-shadow:0 0 22px rgba(255,194,75,.65)}
+.mw{position:relative;height:26px;border-radius:3px 3px 1px 1px;background:#17142A;box-shadow:0 0 0 1.5px #2A2546;font:700 10px/23px var(--f-mono);text-align:center;color:#5F5A80;transition:background .35s,color .35s,box-shadow .35s,transform .35s cubic-bezier(.3,1.6,.5,1)}
+.mw::after{content:"";position:absolute;left:-1px;right:-1px;bottom:0;height:3px;background:repeating-linear-gradient(90deg,rgba(200,194,232,.55) 0 1px,transparent 1px 4px) 0 1px/100% 2px no-repeat,linear-gradient(#B9B2DC,#B9B2DC) 0 0/100% 1px no-repeat;pointer-events:none}
+.mw.warm{background:radial-gradient(120% 90% at 50% 20%,#6B5530,#3D2F1D);color:#C9A86A}
+.mw.on{background:radial-gradient(120% 90% at 50% 20%,#FFF0C2,#FFD27A 45%,#F5A623);color:#3A2600;box-shadow:0 0 0 1.5px #2A2546,0 0 24px rgba(255,194,75,.7);transform:scale(1.08);z-index:1}
 .mw.lobby{background:linear-gradient(180deg,#5A4A7A,#3A3156)}
 .mground{height:10px;background:#0E0C17;border-top:2px solid #4A4268;margin:0 -20px}
 .lg-card{background:var(--surface);color:var(--ink);border-radius:26px;padding:26px;box-shadow:0 30px 80px -24px rgba(0,0,0,.6)}
@@ -161,7 +164,7 @@ h1,h2,h3{font-family:var(--f-display);margin:0;letter-spacing:-.02em}
   .lg-left h1{font-size:32px;margin:6px 0 18px}
   .mini{max-width:210px;margin:0 auto}
   .lg-left{text-align:center}
-  .mw{height:20px;line-height:20px;font-size:9px}
+  .mw{height:20px;line-height:18px;font-size:9px}
   .lg-card{padding:22px}
   .cols{grid-template-columns:1fr;gap:14px}
   .col{gap:14px}
@@ -173,6 +176,36 @@ h1,h2,h3{font-family:var(--f-display);margin:0;letter-spacing:-.02em}
   .card{padding:18px;border-radius:20px}
 }
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+
+/* ---------- Cảm giác chạm & chuyển động ---------- */
+.cp{min-width:64px}
+.cp.ok{background:var(--ok-soft);color:var(--ok);border-color:transparent}
+@media (hover:hover) and (pointer:fine){
+  .ghost:hover,.cp:hover{background:var(--surface-2)}
+  .hrow:hover{background:var(--surface-2)}
+  .btn:hover{filter:brightness(1.12)}
+}
+@media (pointer:coarse){
+  .cp{min-height:38px;padding:8px 12px}
+  .ghost{min-height:40px}
+  .lang button{padding:8px 12px}
+  .months button{padding:9px 13px}
+}
+@media (prefers-reduced-motion:no-preference){
+  .ghost,.cp,.months button,.bars button,.hrow,.lang button,.pwrap button{transition:transform .16s cubic-bezier(.2,.8,.2,1),background-color .15s,color .15s}
+  .ghost:active,.cp:active,.months button:active,.lang button:active,.pwrap button:active{transform:scale(.95)}
+  .hrow:active{transform:scale(.985)}
+  .bars button:active i{transform:scaleY(.94);transform-origin:bottom}
+  .lg-card{animation:rise .5s .1s cubic-bezier(.2,.8,.2,1) both}
+  .lg-left{animation:rise .5s cubic-bezier(.2,.8,.2,1) both}
+  @keyframes rise{from{opacity:0;transform:translateY(14px)}}
+  .mini .mw{animation:lit .7s both;animation-delay:calc(var(--i)*45ms + 250ms)}
+  @keyframes lit{0%{filter:brightness(.3)}60%{filter:brightness(1.3)}100%{filter:none}}
+  .swap{animation:swap .32s cubic-bezier(.2,.8,.2,1) both}
+  @keyframes swap{from{opacity:.25;transform:translateY(6px)}}
+  .wrap.enter .col > *{animation:rise .45s cubic-bezier(.2,.8,.2,1) both}
+  .wrap.enter .col:last-child > *{animation-delay:.08s}
+}
 </style>
 </head>
 <body>
@@ -234,7 +267,7 @@ const T={
 };
 const t=(k,...a)=>{const v=T[LANG][k]??T.vi[k];return typeof v==='function'?v(...a):v};
 const mLabel=k=>LANG==='en'?`${EN_ML[+k.slice(5)-1]} ${k.slice(0,4)}`:`Tháng ${+k.slice(5)}/${k.slice(0,4)}`;
-const mShort=k=>LANG==='en'?`${EN_M[+k.slice(5)-1]} ${k.slice(2,4)}`:`T${+k.slice(5)}/${k.slice(2,4)}`;
+const mShort=k=>LANG==='en'?`${EN_M[+k.slice(5)-1]} ’${k.slice(2,4)}`:`T${+k.slice(5)}/${k.slice(2,4)}`;
 const mTiny=k=>LANG==='en'?EN_M[+k.slice(5)-1]:`T${+k.slice(5)}`;
 const noteMonth=k=>`T${+k.slice(5)}-${k.slice(2,4)}`; /* nội dung chuyển khoản luôn giữ dạng tiếng Việt để chủ nhà đối chiếu */
 const dLabel=iso=>iso?`${iso.slice(8,10)}/${iso.slice(5,7)}/${iso.slice(0,4)}`:'';
@@ -252,7 +285,7 @@ const lsGet=()=>{try{return JSON.parse(localStorage.getItem(LSK))}catch{return n
 const lsSet=v=>{try{localStorage.setItem(LSK,JSON.stringify(v))}catch{}};
 const lsDel=()=>{try{localStorage.removeItem(LSK)}catch{}};
 function toast(t){const d=document.createElement('div');d.className='toast';d.textContent=t;document.body.appendChild(d);setTimeout(()=>d.remove(),2200)}
-async function copy(s,msg){try{await navigator.clipboard.writeText(s);toast(msg||t('copied'))}catch{toast(t('cpFail'))}}
+async function copy(s,msg){try{await navigator.clipboard.writeText(s);toast(msg||t('copied'));try{navigator.vibrate?.(8)}catch{}return true}catch{toast(t('cpFail'));return false}}
 const IC={bolt:'<path d="M13 3 5 13.5h6L10 21l8-10.5h-6z"/>',drop:'<path d="M12 3.5s6 6.4 6 11a6 6 0 0 1-12 0c0-4.6 6-11 6-11z"/>',bottle:'<path d="M10 2.5h4M10.5 2.5v3L8 9v11a1.5 1.5 0 0 0 1.5 1.5h5A1.5 1.5 0 0 0 16 20V9l-2.5-3.5v-3"/><path d="M8 13h8"/>',lock:'<rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>'};
 const icon=(n,s=18)=>`<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${IC[n]}</svg>`;
 
@@ -279,11 +312,14 @@ async function fetchVault(apt){
 const S={apt:'',data:null,sel:null,errKey:''};
 
 /* ---------- login ---------- */
+const WARM=new Set(['700','601','402','301','202']);
 function miniHTML(){
-  return `<div class="mini" aria-hidden="true"><div class="ant"></div>${FLOORS.map(r=>{const f=r[0][0],g=r[0]==='100';return `<div class="mf f${f}" style="--n:${g?2:r.length}">${r.map(id=>`<div class="mw" data-w="${id}">${id}</div>`).join('')}${g?'<div class="mw lobby"></div>':''}</div>`}).join('')}<div class="mground"></div></div>`;
+  let i=0;
+  return `<div class="mini" aria-hidden="true"><div class="ant"></div>${FLOORS.map(r=>{const f=r[0][0],g=r[0]==='100';return `<div class="mf f${f}" style="--n:${g?2:r.length}">${r.map(id=>`<div class="mw${WARM.has(id)?' warm':''}" data-w="${id}" style="--i:${i++}">${id}</div>`).join('')}${g?'<div class="mw lobby"></div>':''}</div>`}).join('')}<div class="mground"></div></div>`;
 }
+function setBar(c){const m=document.getElementById('mTheme');if(m)m.content=c}
 function renderLogin(prefill,errKey){
-  document.documentElement.style.background='#120F20';
+  document.documentElement.style.background='#120F20';setBar('#120F20');
   S.errKey=errKey||'';
   $('#app').innerHTML=`<div class="login">${langHTML()}<div class="lg">
     <div class="lg-left"><div class="eyebrow">${t('eyebrow')}</div><h1>${t('h1')}</h1>${miniHTML()}</div>
@@ -317,19 +353,20 @@ async function onLogin(e,setErr){
     let data; try{data=await decryptVault(v,key)}catch{throw Object.assign(new Error('wrong'),{key:'eWrong'})}
     if(data.apt!==apt)throw Object.assign(new Error('mismatch'),{key:'eMismatch'});
     if($('#iRem').checked)lsSet({apt,salt:v.salt,key:toB64(await crypto.subtle.exportKey('raw',key))}); else lsDel();
-    S.apt=apt;S.data=data;S.sel=null;S.errKey='';history.replaceState(null,'','#'+apt);renderBill();
+    S.apt=apt;S.data=data;S.sel=null;S.errKey='';history.replaceState(null,'','#'+apt);renderBill('enter');
   }catch(x){setErr(x.key||'eNet');btn.disabled=false;btn.textContent=t('go')}
 }
 
 /* ---------- bill view ---------- */
-function renderBill(){
+function renderBill(how){
   document.documentElement.style.background='';
+  setBar(getComputedStyle(document.documentElement).getPropertyValue('--paper').trim()||'#EFF0EC');
   const d=S.data, bills=d.bills||[], sel=S.sel||(bills.length?bills[bills.length-1].m:null), b=bills.find(x=>x.m===sel);
   S.sel=sel;
   const st=b?(b.paid?`<span class="chip ok">${t('paid')}</span>`:`<span class="chip due">${t('due')}</span>`):'';
   const line=(c,ic,ti,sub,v)=>`<div class="line"><span class="ic" style="background:${c}">${icon(ic)}</span><div><b>${ti}</b><small>${sub}</small></div><span class="v">${v}</span></div>`;
   const P=d.prices||{};
-  const receipt=b?`<div class="card"><h2>${t('details',mLabel(b.m))}</h2>
+  const receipt=b?`<div class="card${how==='swap'?' swap':''}"><h2>${t('details',mLabel(b.m))}</h2>
     ${line('var(--elec)','bolt',t('elec'),isNum(b.eu)?`${fmt(b.pe)} → ${fmt(b.ce)} · ${fmt(b.eu)} ${t('unitE')} × ${fmt(P.e)}đ`:t('noRead'),vnd(b.em))}
     ${line('var(--water)','drop',t('water'),d.waterFree?t('waterFree'):(isNum(b.wu)?`${fmt(b.pw)} → ${fmt(b.cw)} · ${fmt(b.wu)} m³ × ${fmt(P.w)}đ`:t('noRead')),d.waterFree?'0đ':vnd(b.wm))}
     ${line('var(--lavie)','bottle',t('lavie'),`${t('bottles',b.ln||0)} × ${fmt(P.l)}đ`,vnd(b.lm))}
@@ -364,11 +401,11 @@ function renderBill(){
     <div class="bars">${bills.slice(-12).map(x=>`<button data-m="${x.m}" aria-pressed="${x.m===sel}" aria-label="${mLabel(x.m)}: ${vnd(x.total)}"><i style="height:${Math.max(4,(x.total||0)/mx*84)}px"></i>${mTiny(x.m)}</button>`).join('')}</div>
     <div style="margin-top:8px">${[...bills].reverse().slice(0,12).map(x=>`<button class="hrow" data-m="${x.m}"><b>${mLabel(x.m)}</b><span class="v">${vnd(x.total)}</span>${x.paid?`<span class="chip lok">${t('hPaid')}</span>`:`<span class="chip lwarn">${t('hUnpaid')}</span>`}</button>`).join('')}</div></div>`:'';
   const rd=d.readingDay||20;
-  $('#app').innerHTML=`<div class="wrap">
+  $('#app').innerHTML=`<div class="wrap${how==='enter'?' enter':''}">
     <div class="top"><div class="who"><small>${esc(d.building||'')}</small><b>${t('unit')} ${esc(d.apt)}${d.tenant?` · ${esc(d.tenant)}`:''}</b></div>${langHTML()}<button class="ghost" id="bOut">${t('signout')}</button></div>
     <div class="cols"><div class="col">
-      <section class="hero">${b?`<div class="ml">${t('billFor',mLabel(b.m))}</div>
-        <div class="tot num">${fmt(b.total)}<small>đ</small></div>
+      <section class="hero">${b?`<div class="ml${how==='swap'?' swap':''}">${t('billFor',mLabel(b.m))}</div>
+        <div class="tot num${how==='swap'?' swap':''}">${fmt(b.total)}<small>đ</small></div>
         <div class="row">${st}<span class="chip dim">${t('readRange',`${rd}/${+addM(b.m,-1).slice(5)}`,`${rd}/${+b.m.slice(5)}`)}</span></div>
         <div class="months">${[...bills].reverse().slice(0,12).map(x=>`<button data-m="${x.m}" aria-pressed="${x.m===sel}">${mShort(x.m)}</button>`).join('')}</div>`
         :`<div class="ml">${t('utilBill')}</div><div class="tot" style="font-size:28px">${t('noBill')}</div><div class="row"><span class="chip dim">${t('noBillSub')}</span></div>`}</section>
@@ -378,8 +415,9 @@ function renderBill(){
   </div>`;
   bindLang();
   $('#bOut').onclick=()=>{lsDel();S.data=null;renderLogin(S.apt)};
-  document.querySelectorAll('[data-m]').forEach(el=>el.onclick=()=>{S.sel=el.dataset.m;renderBill();window.scrollTo({top:0,behavior:'smooth'})});
-  document.querySelectorAll('[data-cp]').forEach(el=>el.onclick=()=>copy(el.dataset.cp,el.dataset.msg));
+  document.querySelectorAll('[data-m]').forEach(el=>el.onclick=()=>{if(S.sel===el.dataset.m)return;S.sel=el.dataset.m;renderBill('swap');window.scrollTo({top:0,behavior:'smooth'})});
+  document.querySelectorAll('[data-cp]').forEach(el=>el.onclick=async()=>{const ok=await copy(el.dataset.cp,el.dataset.msg);if(!ok)return;el.classList.add('ok');el.textContent='✓';clearTimeout(el._t);el._t=setTimeout(()=>{el.classList.remove('ok');el.textContent=t('copy')},1600)});
+  document.querySelector('.months [aria-pressed="true"]')?.scrollIntoView({block:'nearest',inline:'center'});
 }
 
 /* ---------- boot ---------- */
@@ -392,7 +430,7 @@ function renderBill(){
       const v=await fetchVault(saved.apt);
       if(v.salt!==saved.salt)throw Object.assign(new Error('changed'),{key:'eChanged'});
       const key=await crypto.subtle.importKey('raw',fromB64(saved.key),{name:'AES-GCM'},false,['decrypt']);
-      S.apt=saved.apt;S.data=await decryptVault(v,key);renderBill();return;
+      S.apt=saved.apt;S.data=await decryptVault(v,key);renderBill('enter');return;
     }catch(x){lsDel();renderLogin(saved.apt,(x.key==='eNf'||x.key==='eChanged')?x.key:'');return}
   }
   renderLogin(APTS.includes(h)?h:'');

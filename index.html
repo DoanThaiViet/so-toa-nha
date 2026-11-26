@@ -3,7 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#1D1B2C">
+<meta name="theme-color" content="#EFF0EC" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#111118" media="(prefers-color-scheme: dark)">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -48,6 +49,8 @@
 html{-webkit-text-size-adjust:100%}
 body{margin:0;background:var(--paper);color:var(--ink);font:15px/1.5 var(--f-body);-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent}
 button,input,select,textarea{font:inherit;color:inherit}
+button,a,input,select,label{touch-action:manipulation}
+body.lock{overflow:hidden}
 button{cursor:pointer;border:0;background:none;padding:0}
 :focus-visible{outline:2px solid var(--glow-2);outline-offset:2px;border-radius:8px}
 .num{font-variant-numeric:tabular-nums}
@@ -56,8 +59,8 @@ h1,h2,h3{font-family:var(--f-display);margin:0;letter-spacing:-.02em}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
 
 /* ---------- Shell ---------- */
-.app{display:grid;grid-template-columns:264px minmax(0,1fr);min-height:100vh}
-.side{position:sticky;top:0;height:100vh;background:var(--night);color:var(--night-ink);display:flex;flex-direction:column;padding:24px 16px 18px;overflow:hidden}
+.app{display:grid;grid-template-columns:264px minmax(0,1fr);min-height:100vh;min-height:100dvh}
+.side{position:sticky;top:0;height:100vh;height:100dvh;background:var(--night);color:var(--night-ink);display:flex;flex-direction:column;padding:24px 16px 18px;overflow:hidden}
 .side::before{content:"";position:absolute;inset:auto -40% -30% -40%;height:55%;background:radial-gradient(closest-side,rgba(255,194,75,.12),transparent);pointer-events:none}
 .brand{display:flex;gap:12px;align-items:center;padding:0 8px 26px}
 .brand-mark{width:40px;height:40px;border-radius:12px;background:var(--night-2);display:grid;place-items:center}
@@ -65,7 +68,6 @@ h1,h2,h3{font-family:var(--f-display);margin:0;letter-spacing:-.02em}
 .brand span{font-size:12.5px;color:var(--night-ink-2)}
 .nav{display:flex;flex-direction:column;gap:3px}
 .nav button{display:flex;align-items:center;gap:12px;padding:11px 12px;border-radius:12px;color:var(--night-ink-2);font-weight:500;text-align:left;transition:background .15s,color .15s}
-.nav button:hover{background:var(--night-2);color:var(--night-ink)}
 .nav button[aria-current="page"]{background:var(--night-2);color:#fff}
 .nav button[aria-current="page"] svg{color:var(--glow)}
 .nav .badge{margin-left:auto;font-size:11.5px;font-weight:700;background:var(--bad);color:#fff;border-radius:99px;padding:1px 7px}
@@ -91,7 +93,6 @@ h1,h2,h3{font-family:var(--f-display);margin:0;letter-spacing:-.02em}
 .tb-mobile{display:none}
 .month-switch{display:flex;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:99px;padding:4px;box-shadow:var(--shadow)}
 .month-switch button{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;color:var(--ink-2)}
-.month-switch button:hover{background:var(--surface-2)}
 .month-switch .ml{padding:0 10px;font-weight:600;font-size:14px;min-width:118px;text-align:center}
 .month-switch .ml small{display:block;font-weight:500;font-size:11px;color:var(--ink-3);line-height:1.2}
 .tabbar{display:none}
@@ -190,7 +191,6 @@ h1,h2,h3{font-family:var(--f-display);margin:0;letter-spacing:-.02em}
   linear-gradient(#B9B2DC,#B9B2DC) 0 0/100% 2px no-repeat,
   repeating-linear-gradient(90deg,rgba(200,194,232,.85) 0 1.5px,transparent 1.5px 6px) 0 2px/100% 9px no-repeat,
   linear-gradient(#5E5786,#4A4470) 0 11px/100% 3px no-repeat}
-.unit:hover{transform:translateY(-1px);filter:brightness(1.08)}
 .unit:focus-visible{outline:2px solid #fff;outline-offset:3px}
 .unit .u-no{font:700 15px/1 var(--f-mono);letter-spacing:.02em}
 .unit .u-who{font-size:11px;line-height:1.2;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:500}
@@ -332,7 +332,6 @@ h1,h2,h3{font-family:var(--f-display);margin:0;letter-spacing:-.02em}
 .prow small{display:block;color:var(--ink-3);font-size:12.5px}
 .prow .amt{font-weight:700;white-space:nowrap}
 .icon-btn{width:32px;height:32px;border-radius:9px;display:grid;place-items:center;color:var(--ink-3)}
-.icon-btn:hover{background:var(--surface-2);color:var(--bad)}
 
 /* ---------- Money ---------- */
 .money{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:20px;align-items:start}
@@ -484,6 +483,51 @@ h1,h2,h3{font-family:var(--f-display);margin:0;letter-spacing:-.02em}
 }
 @media (max-width:480px){ .hide-s{display:none} }
 @media (max-width:380px){ .ledger .val{font-size:20px} .bld{width:calc(100% - 56px)} .unit .u-who{font-size:10px} }
+
+/* ---------- Cảm giác chạm & chuyển động ---------- */
+@media (hover:hover) and (pointer:fine){
+  .nav button:hover{background:var(--night-2);color:var(--night-ink)}
+  .month-switch button:hover{background:var(--surface-2)}
+  .unit:hover{transform:translateY(-1px);filter:brightness(1.08)}
+  .icon-btn:hover{background:var(--surface-2);color:var(--bad)}
+  .btn:hover{filter:brightness(.97)} .btn.primary:hover,.btn.glow:hover{filter:brightness(1.08)}
+  .alert:hover,.txrow:hover,.aptrow:hover{background-color:var(--surface-2)}
+  .rcard:hover{box-shadow:0 1px 2px rgba(20,20,40,.05),0 16px 34px -18px rgba(20,20,40,.28)}
+}
+@media (prefers-reduced-motion:no-preference){
+  .btn,.paidbtn,.check,.rcard,.alert,.txrow,.aptrow,.tabbar button,.nav button,.month-switch button,.stepper button,.icon-btn,.filters button,.seg button,.sync-pill,.btn-glow{
+    transition:transform .16s cubic-bezier(.2,.8,.2,1),background-color .15s,color .15s,box-shadow .2s,filter .15s}
+  .btn:active,.paidbtn:active,.tabbar button:active,.nav button:active,.month-switch button:active,.stepper button:active,.icon-btn:active,.filters button:active,.seg button:active,.sync-pill:active,.btn-glow:active{transform:scale(.96)}
+  .check:active{transform:scale(.88)}
+  .rcard:active,.alert:active,.txrow:active,.aptrow:active{transform:scale(.985)}
+  .unit:active{transform:scale(.95)}
+  .check.on{animation:pop .28s cubic-bezier(.3,1.6,.5,1)}
+  @keyframes pop{0%{transform:scale(.8)}100%{transform:scale(1)}}
+  #view.enter{animation:viewIn .3s cubic-bezier(.2,.8,.2,1) both}
+  @keyframes viewIn{from{opacity:0;transform:translateY(8px)}}
+  .tabbar button[aria-current="page"] svg{animation:tabPop .32s cubic-bezier(.3,1.5,.5,1)}
+  @keyframes tabPop{0%{transform:scale(.7)}100%{transform:scale(1)}}
+  .toast{animation:tin .32s cubic-bezier(.2,1.2,.4,1) both}
+}
+.sheet.drag{transition:none!important}
+/* vùng chạm tối thiểu ~44px trên màn hình cảm ứng */
+@media (pointer:coarse){
+  .stepper button{width:44px;height:44px}
+  .stepper input{width:40px}
+  .month-switch button{width:44px;height:44px}
+  .icon-btn{width:44px;height:44px}
+  .btn.sm{min-height:40px}
+  .paidbtn{min-height:40px;padding:8px 12px}
+  .check{width:30px;height:30px}
+  .filters button{padding:8px 13px}
+  .sheet .grab{width:48px;margin-top:10px}
+}
+@media (max-width:959px){
+  .main{padding-left:max(16px,env(safe-area-inset-left));padding-right:max(16px,env(safe-area-inset-right))}
+  .sheet{max-height:92dvh}
+  .sheet-h{touch-action:none}
+  .tabbar{user-select:none;-webkit-user-select:none}
+}
 </style>
 </head>
 <body>
@@ -909,10 +953,12 @@ function renderTop(){
   $('#monthSwitch').style.display=(state.tab==='settings'||state.tab==='rent')?'none':'';
   $('#monthLabel').innerHTML=`${mLabel(m)}<small>${state.tab==='util'?'chốt ngày '+DB.settings.readingDay:(m===thisMonth()?'tháng này':'&nbsp;')}</small>`;
 }
+let lastTab=null;
 function render(){
   killCharts(); renderNav(); renderTop(); renderSyncUI();
   const v=$('#view');
   const banner=DEMO?`<div class="banner">${icon('alert',18)}<div class="grow"><b>Đang xem dữ liệu mẫu.</b> Số liệu là giả, chỉ để xem thử giao diện.</div><button class="btn sm" data-act="demo-exit">Thoát xem thử</button></div>`:'';
+  if(lastTab!==state.tab){v.classList.remove('enter');void v.offsetWidth;v.classList.add('enter');lastTab=state.tab}
   v.innerHTML=banner+({home:viewHome,util:viewUtil,rent:viewRent,money:viewMoney,settings:viewSettings}[state.tab])();
   tipHide();
   ({home:afterHome,util:afterUtil,money:afterMoney}[state.tab]||(()=>{}))();
@@ -1391,12 +1437,25 @@ function portalCardHTML(){
 
 /* ---------- sheet / ask / toast ---------- */
 let lastFocus=null;
-function openSheet(title,html){lastFocus=document.activeElement;$('#sheetTitle').textContent=title;$('#sheetBody').innerHTML=html;$('#sheet').classList.add('on');$('#scrim').classList.add('on');setTimeout(()=>{const f=$('#sheetBody input:not([type=hidden]),#sheetBody select,#sheetBody button');if(f&&matchMedia('(min-width:960px)').matches)f.focus()},60)}
-function closeSheet(){$('#sheet').classList.remove('on');$('#scrim').classList.remove('on');tipHide();if(askResolve){askResolve(null);askResolve=null} /* đóng ngang = null: không chọn gì */lastFocus?.focus?.()}
+function openSheet(title,html){lastFocus=document.activeElement;$('#sheetTitle').textContent=title;$('#sheetBody').innerHTML=html;$('#sheet').classList.add('on');$('#scrim').classList.add('on');document.body.classList.add('lock');setTimeout(()=>{const f=$('#sheetBody input:not([type=hidden]),#sheetBody select,#sheetBody button');if(f&&matchMedia('(min-width:960px)').matches)f.focus()},60)}
+function closeSheet(){$('#sheet').classList.remove('on');$('#scrim').classList.remove('on');document.body.classList.remove('lock');tipHide();if(askResolve){askResolve(null);askResolve=null} /* đóng ngang = null: không chọn gì */lastFocus?.focus?.()}
 let askResolve=null;
 function ask(title,text,okLabel,cancelLabel){return new Promise(res=>{openSheet(title,`<p style="margin:0 0 8px;color:var(--ink-2)">${esc(text)}</p><div class="sheet-actions"><button class="btn" data-act="ask-no">${esc(cancelLabel)}</button><button class="btn primary" data-act="ask-yes">${esc(okLabel)}</button></div>`);askResolve=res})}
+/* vuốt bảng xuống để đóng (điện thoại) */
+(function sheetDrag(){
+  const sh=$('#sheet'); let y0=0,t0=0,dy=0,on=false;
+  const start=e=>{if(!matchMedia('(max-width:959px)').matches||e.target.closest('button,input,select,a'))return;
+    if(!e.target.closest('.grab,.sheet-h'))return; on=true;y0=e.clientY;t0=performance.now();dy=0;sh.classList.add('drag');sh.setPointerCapture?.(e.pointerId)};
+  const move=e=>{if(!on)return;dy=Math.max(0,e.clientY-y0);sh.style.transform=`translateY(${dy}px)`};
+  const end=()=>{if(!on)return;on=false;sh.classList.remove('drag');const v=dy/Math.max(1,performance.now()-t0);
+    requestAnimationFrame(()=>{sh.style.transform='';if(dy>110||v>.6)closeSheet()})};
+  sh.addEventListener('pointerdown',start);sh.addEventListener('pointermove',move);
+  sh.addEventListener('pointerup',end);sh.addEventListener('pointercancel',end);
+})();
+const buzz=()=>{try{navigator.vibrate?.(8)}catch{}};
 function toast(msg,kind){const t=document.createElement('div');t.className='toast '+(kind||'');t.textContent=msg;$('#toasts').appendChild(t);setTimeout(()=>t.remove(),kind==='bad'?5200:2600)}
-function applyTheme(){const t=lsGet(LS.theme,'auto');if(t==='auto')delete document.documentElement.dataset.theme;else document.documentElement.dataset.theme=t}
+function applyTheme(){const t=lsGet(LS.theme,'auto');if(t==='auto')delete document.documentElement.dataset.theme;else document.documentElement.dataset.theme=t;
+  $$('meta[name=theme-color]').forEach(m=>{const light=m.media.includes('light');m.content=t==='auto'?(light?'#EFF0EC':'#111118'):(t==='dark'?'#111118':'#EFF0EC')})}
 
 /* ---------- actions ---------- */
 const ACT={
@@ -1408,7 +1467,7 @@ const ACT={
   close:()=>closeSheet(),
   'ask-yes':()=>{const r=askResolve;askResolve=null;closeSheet();r&&r(true)},
   'ask-no':()=>{const r=askResolve;askResolve=null;closeSheet();r&&r(false)},
-  paid:el=>{const id=el.dataset.apt,m=state.month,on=!read(m,id).paid;setRead(m,id,'paid',on?true:null);setRead(m,id,'paidDate',on?todayISO():null);commit();
+  paid:el=>{buzz();const id=el.dataset.apt,m=state.month,on=!read(m,id).paid;setRead(m,id,'paid',on?true:null);setRead(m,id,'paidDate',on?todayISO():null);commit();
     if(el.dataset.close){closeSheet()}
     if(state.tab==='util'){refreshUtilViz();const b=$(`[data-row="${id}"] .paidbtn`);b.classList.toggle('on',on);b.textContent=on?'✓ Đã thu':'Chưa thu';fillUtilRow(id)}else render();
     toast(on?`Căn ${id}: đã thu tiền điện nước`:`Căn ${id}: chuyển về chưa thu`)},
@@ -1422,7 +1481,7 @@ const ACT={
   'edit-tx':el=>txSheet(el.dataset.id),
   'del-tx':async el=>{const id=el.dataset.id;const ok=await ask('Xóa khoản này?','Khoản sẽ bị xóa khỏi sổ thu chi.','Xóa','Giữ lại');if(!ok)return;DB.transactions=DB.transactions.filter(t=>t.id!==id);commit();render();toast('Đã xóa khoản')},
   txf:el=>{state.txFilter=el.dataset.f;render()},
-  recur:el=>{const r=DB.recurring.find(x=>x.id===el.dataset.id),m=state.month,t=recurTx(r,m);
+  recur:el=>{buzz();const r=DB.recurring.find(x=>x.id===el.dataset.id),m=state.month,t=recurTx(r,m);
     if(t)DB.transactions=DB.transactions.filter(x=>x!==t);
     else{DB.transactions.push({id:uid(),date:m===thisMonth()?todayISO():m+'-05',kind:'chi',cat:r.cat||'luong',who:r.who,note:r.role||'',amount:r.amount,recurId:r.id});if(!r.amount)toast(`“${r.who}” chưa có số tiền — điền trong Cài đặt → Chi cố định`,'bad')}
     commit();render()},
